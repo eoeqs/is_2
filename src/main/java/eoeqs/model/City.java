@@ -38,6 +38,7 @@ public class City {
     @Min(1)
     private Long population;
 
+//    @PrePersist
     private ZonedDateTime establishmentDate;
 
     @Column(nullable = false)
@@ -53,7 +54,6 @@ public class City {
     @Min(1)
     @Column(nullable = false)
     private long agglomeration;
-
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

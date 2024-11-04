@@ -1,9 +1,9 @@
-package eoeqs.repository;
+package eoeqs.dao;
 
-import eoeqs.model.City;
+import eoeqs.model.Human;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CityRepository extends JpaRepository<City, Long> {
+public interface HumanDAO extends JpaRepository<Human, Long> {
 }

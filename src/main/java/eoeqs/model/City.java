@@ -63,4 +63,9 @@ public class City {
     @JoinColumn(name = "governor_id")
     @NotNull(message = "Governor cannot be null")
     private Human governor;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
 }

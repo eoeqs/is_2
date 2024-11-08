@@ -17,4 +17,4 @@ spring:
         format_sql: true
 token:
   signing:
-    key: key
+    key: cjdbjdhsbcjab39u1iweh

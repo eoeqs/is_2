@@ -1,7 +1,6 @@
 package eoeqs.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import eoeqs.security.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,10 +19,9 @@ public class Admin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @JsonIgnore
     @Column
     private String password;
 

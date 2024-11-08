@@ -1,22 +1,21 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
-import Profile from './components/Profile';
+import CityForm from './components/CityForm'; // импортируем компонент CityForm
 
-function App() {
+const App = () => {
     return (
         <Router>
-            <div className="App">
-                <Routes>
-                    <Route path="/" element={<Navigate to="/login" />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/profile" element={<Profile />} />
-                </Routes>
-            </div>
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/city-form" element={<CityForm />} />
+            </Routes>
         </Router>
     );
-}
+};
 
 export default App;

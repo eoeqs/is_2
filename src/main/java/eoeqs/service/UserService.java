@@ -1,40 +1,60 @@
 package eoeqs.service;
 
-import eoeqs.dao.AdminDAO;
-import eoeqs.dao.UserDAO;
 import eoeqs.model.User;
-import eoeqs.security.Role;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import eoeqs.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-@Transactional
-public class UserService implements UserDetailsService {
-    private final UserDAO userDao;
-    private final AdminDAO adminDAO;
+public class UserService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userDao.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public boolean existsByUsername(String username) {
-        return userDao.existsByUsername(username);
-    }
-
-    public boolean addUser(User user) {
-        if (user.getRoles().contains(Role.ADMIN) && userDao.countAdmins() > 0) {
-            adminDAO.addApplication(user);
-            return false;
-        } else {
-            userDao.addUser(user);
-            return true;
+    // Метод для регистрации пользователя
+    public User registerUser(String username, String password) {
+        // Проверяем, не существует ли уже пользователь с таким именем
+        Optional<User> existingUser = userRepository.findByUsername(username);
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException("Username already taken");
         }
+
+        // Создаём нового пользователя и хэшируем его пароль
+        User user = new User(username, passwordEncoder.encode(password));
+        return userRepository.save(user);
+    }
+
+    // Поиск пользователя по ID
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    // Поиск пользователя по имени
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    // Удаление пользователя по ID
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    // Аутентификация пользователя
+    public Optional<User> authenticate(String username, String password) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            // Проверяем, совпадает ли введённый пароль с хэшированным
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                return Optional.of(user);  // Возвращаем пользователя, если пароль совпал
+            }
+        }
+        return Optional.empty();  // Если пользователь не найден или пароль не совпал
     }
 }

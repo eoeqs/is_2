@@ -30,6 +30,14 @@ public class City {
     @Column(nullable = false, updatable = false)
     private LocalDate creationDate;
 
+    @PrePersist
+    public void prePersist() {
+        creationDate = LocalDate.now();
+        if (establishmentDate == null) {
+            establishmentDate = ZonedDateTime.now();
+        }
+    }
+
     @Column(nullable = false)
     @Min(1)
     private int area;
@@ -59,7 +67,7 @@ public class City {
     @Column(nullable = false)
     private Climate climate;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "governor_id")
     @NotNull(message = "Governor cannot be null")
     private Human governor;
@@ -68,4 +76,15 @@ public class City {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = true)
+    private LocalDate updatedDate;
+
+    @ManyToOne
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedDate = LocalDate.now();
+    }
 }

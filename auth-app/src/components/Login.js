@@ -19,7 +19,7 @@ const Login = () => {
             if (response.status === 200) {
                 console.log("Logged in successfully");
 
-                navigate('/cites');
+                navigate('/city-form');
             }
         } catch (err) {
             console.error('Login failed:', err);

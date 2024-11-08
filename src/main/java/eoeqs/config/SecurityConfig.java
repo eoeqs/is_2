@@ -36,16 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
-                )
-                .formLogin(form -> form
-                        .loginPage("/api/users/login")
-                        .defaultSuccessUrl("/cities", true)
-                        .permitAll()
-                )
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
-                        .permitAll()
                 );
+
 
         return http.build();
     }

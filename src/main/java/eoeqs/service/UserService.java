@@ -1,10 +1,13 @@
 package eoeqs.service;
 
+import eoeqs.model.Role;
 import eoeqs.model.User;
 import eoeqs.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,44 +20,50 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Метод для регистрации пользователя
     public User registerUser(String username, String password) {
-        // Проверяем, не существует ли уже пользователь с таким именем
         Optional<User> existingUser = userRepository.findByUsername(username);
         if (existingUser.isPresent()) {
             throw new IllegalArgumentException("Username already taken");
         }
 
-        // Создаём нового пользователя и хэшируем его пароль
         User user = new User(username, passwordEncoder.encode(password));
+        user.getRoles().add(Role.USER);
         return userRepository.save(user);
     }
 
-    // Поиск пользователя по ID
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
-    // Поиск пользователя по имени
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    // Удаление пользователя по ID
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
 
-    // Аутентификация пользователя
     public Optional<User> authenticate(String username, String password) {
         Optional<User> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            // Проверяем, совпадает ли введённый пароль с хэшированным
             if (passwordEncoder.matches(password, user.getPassword())) {
-                return Optional.of(user);  // Возвращаем пользователя, если пароль совпал
+                return Optional.of(user);
             }
         }
-        return Optional.empty();  // Если пользователь не найден или пароль не совпал
+        return Optional.empty();
+    }
+
+    @Transactional
+    public void updateUserRole(Long userId, Role newRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        user.getRoles().clear();
+        user.getRoles().add(newRole);
+        userRepository.save(user);
+    }
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 }

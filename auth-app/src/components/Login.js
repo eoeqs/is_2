@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from "../AuthContext";
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { saveToken } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -14,9 +16,11 @@ const Login = () => {
             const response = await axios.post('http://localhost:8080/api/users/login', {
                 username,
                 password
-            }, { withCredentials: true });
+            });
 
             if (response.status === 200) {
+                const token = response.data.token;
+                saveToken(token);
                 console.log("Logged in successfully");
 
                 navigate('/city-form');

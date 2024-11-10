@@ -1,7 +1,13 @@
 package eoeqs.controller;
 
+import eoeqs.dto.AuthenticationSucceedDto;
+import eoeqs.dto.LoginUserDto;
+import eoeqs.dto.RegisterUserDto;
+import eoeqs.jwt.JwtService;
+import eoeqs.jwt.JwtUtils;
 import eoeqs.model.Role;
 import eoeqs.model.User;
+import eoeqs.service.AuthenticationService;
 import eoeqs.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,42 +22,64 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
+    private final JwtUtils jwtUtils;
     private final UserService userService;
+    private final JwtService jwtService;
+    private final AuthenticationService authenticationService;
 
-    public UserController(UserService userService) {
+    public UserController(JwtUtils jwtUtils, UserService userService, JwtService jwtService, AuthenticationService authenticationService) {
+        this.jwtUtils = jwtUtils;
         this.userService = userService;
+        this.jwtService = jwtService;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<?> createUser(@RequestBody RegisterUserDto user) {
 
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+        if (user.password() == null || user.password().isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
 
         try {
-            User createdUser = userService.registerUser(user.getUsername(), user.getPassword());
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+//            User createdUser = userService.registerUser(user.username(), user.password());
+            User createdUser = authenticationService.signup(user);
+//            return ResponseEntity.ok(jwtUtils.generateJwtToken(createdUser));
+            String jwtToken = jwtService.generateToken(createdUser);
+            AuthenticationSucceedDto succeedDto = new AuthenticationSucceedDto(jwtToken, jwtService.getExpirationTime());
+            return ResponseEntity.ok(succeedDto);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody User user) {
+//
+//        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password is missing");
+//        }
+//
+//        Optional<User> loggedInUser = userService.authenticate(user.getUsername(), user.getPassword());
+//
+//        if (loggedInUser.isPresent()) {
+//            return ResponseEntity.ok(jwtUtils.generateJwtToken(user));
+//        } else {
+//            return ResponseEntity.status(401).body("Invalid username or password");
+//        }
+//    }
+
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
+    public ResponseEntity<AuthenticationSucceedDto> authenticate(@RequestBody LoginUserDto loginUserDto) {
+        User authenticatedUser = authenticationService.authenticate(loginUserDto);
 
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password is missing");
-        }
+        String jwtToken = jwtService.generateToken(authenticatedUser);
 
-        Optional<User> loggedInUser = userService.authenticate(user.getUsername(), user.getPassword());
+        AuthenticationSucceedDto authenticationSucceedDto = new AuthenticationSucceedDto(jwtToken, jwtService.getExpirationTime());
 
-        if (loggedInUser.isPresent()) {
-            return ResponseEntity.ok("Login successful");
-        } else {
-            return ResponseEntity.status(401).body("Invalid username or password");
-        }
+        return ResponseEntity.ok(authenticationSucceedDto);
     }
     @GetMapping("/{id}")
     public Optional<User> getUserById(@PathVariable Long id) {

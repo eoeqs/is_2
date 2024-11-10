@@ -1,6 +1,6 @@
 
 const connectWebSocket = (onUpdate) => {
-    const socket = new WebSocket('ws://localhost:8080/ws');
+    const socket = new WebSocket(`ws://localhost:8080/ws?token=${localStorage.getItem('token')}`);
 
     socket.onopen = () => {
         console.log('WebSocket connection established');

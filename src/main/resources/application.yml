@@ -15,6 +15,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-token:
-  signing:
-    key: cjdbjdhsbcjab39u1iweh
+logging:
+  level:
+    org:
+      springframework: trace

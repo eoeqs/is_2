@@ -15,6 +15,6 @@ public class CityWebSocketController {
 
     @MessageMapping("/city")
     public void sendCityUpdate(City city) {
-        messagingTemplate.convertAndSend("/topic/cities", city); // Отправка обновлений
+        messagingTemplate.convertAndSend("/topic/cities", city);
     }
 }

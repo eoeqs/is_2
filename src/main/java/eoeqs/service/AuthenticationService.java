@@ -2,6 +2,7 @@ package eoeqs.service;
 
 import eoeqs.dto.LoginUserDto;
 import eoeqs.dto.RegisterUserDto;
+import eoeqs.model.Role;
 import eoeqs.model.User;
 import eoeqs.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,7 +30,7 @@ public class AuthenticationService {
 
     public User signup(RegisterUserDto input) {
         User user = new User(input.username(), passwordEncoder.encode(input.password()));
-
+        user.getRoles().add(Role.USER);
         return userRepository.save(user);
     }
 

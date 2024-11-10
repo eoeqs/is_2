@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user/**", "/cities/**").authenticated()//.hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/user/**", "/cities/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
 //                .authenticationProvider(authenticationProvider())

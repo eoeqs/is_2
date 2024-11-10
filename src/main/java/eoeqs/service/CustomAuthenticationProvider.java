@@ -7,9 +7,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -28,8 +30,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (!password.equals(user.getPassword())) {
             throw new BadCredentialsException("Authentication failed.");
         }
+        Collection<GrantedAuthority> authorities = user.getAuthorities();
 
-        return new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>());
+        return new UsernamePasswordAuthenticationToken(username, password, authorities);
 
     }
 

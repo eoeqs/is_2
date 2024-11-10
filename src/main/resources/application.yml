@@ -15,7 +15,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-logging:
-  level:
-    org:
-      springframework: trace
+#logging:
+#  level:
+#    org:
+#      springframework: trace

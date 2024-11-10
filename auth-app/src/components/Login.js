@@ -1,30 +1,26 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../AuthProvider";
+import { loginUser } from "../authService";
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { saveToken } = useAuth();
+    const { token, setToken } = useAuth();
+
+    useEffect(() => {
+        if (token) {
+            console.log("token in login (after update)", token);
+            navigate('/city-form');
+        }
+    }, [token, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8080/api/users/login', {
-                username,
-                password
-            });
-
-            if (response.status === 200) {
-                const token = response.data.token;
-                saveToken(token);
-                console.log("Logged in successfully");
-
-                navigate('/city-form');
-            }
+            await loginUser(username, password, setToken);
         } catch (err) {
             console.error('Login failed:', err);
             setError('Login failed. Please try again.');

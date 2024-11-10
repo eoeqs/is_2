@@ -1,25 +1,28 @@
+import { useAuth } from './AuthProvider';
+import { useEffect } from 'react';
 
-const connectWebSocket = (onUpdate) => {
-    const socket = new WebSocket(`ws://localhost:8080/ws?token=${localStorage.getItem('token')}`);
+const useWebSocket = (url) => {
+    const { token } = useAuth();
 
-    socket.onopen = () => {
-        console.log('WebSocket connection established');
-    };
+    useEffect(() => {
+        if (token) {
+            const socket = new WebSocket(`${url}?token=${token}`);
 
-    socket.onmessage = (event) => {
-        const updatedCities = JSON.parse(event.data);
-        onUpdate(updatedCities);
-    };
+            socket.onopen = () => {
+                console.log("WebSocket connected");
+            };
 
-    socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-    };
+            socket.onmessage = (event) => {
+                console.log("Message from server:", event.data);
+            };
 
-    socket.onclose = () => {
-        console.log('WebSocket connection closed');
-    };
+            socket.onclose = () => {
+                console.log("WebSocket disconnected");
+            };
 
-    return socket;
+            return () => socket.close();
+        }
+    }, [url, token]);
 };
 
-export { connectWebSocket };
+export default useWebSocket;

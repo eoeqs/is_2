@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
-import { useAuth } from "../AuthProvider";
+import {useAuth} from "../AuthProvider";
 
 const CityForm = () => {
-    const { token, userId } = useAuth(); // Получаем токен и id пользователя из контекста
+    const {token, userId} = useAuth();
     const [name, setName] = useState('');
     const [population, setPopulation] = useState('');
     const [area, setArea] = useState('');
@@ -17,7 +17,6 @@ const CityForm = () => {
     const [availableCoordinates, setAvailableCoordinates] = useState([]);
     const [availableGovernors, setAvailableGovernors] = useState([]);
 
-    // Загрузка доступных координат и губернаторов при загрузке формы
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -41,22 +40,23 @@ const CityForm = () => {
         fetchData();
     }, [token]);
 
-    // Обработчик отправки формы для города
     const handleSubmit = async (e) => {
         e.preventDefault();
         const city = {
             name,
-            population: Number(population), // Убедитесь, что данные числовые
-            coordinates,
-            governor,
+            population: Number(population),
+            coordinates: coordinates ? coordinates.id : null,
+            governor: governor ? governor.id : null,
             area: Number(area),
             capital,
             metersAboveSeaLevel: Number(metersAboveSeaLevel),
-            carCode: Number(carCode), // Может быть пустым, но если передается - убедитесь в корректности
+            carCode: Number(carCode),
             agglomeration: Number(agglomeration),
             climate,
-            user: { id: userId }, // Добавляем user из контекста
+            user: {id: userId},
         };
+        console.log("Sending city data:", city);
+        console.log("Authorization token:", token);
 
         try {
             const response = await axios.post('/cities', city, {
@@ -74,7 +74,6 @@ const CityForm = () => {
         <div>
             <h2>Create City</h2>
             <form onSubmit={handleSubmit}>
-                {/* Поле для имени города */}
                 <div>
                     <label>Name:</label>
                     <input
@@ -85,7 +84,6 @@ const CityForm = () => {
                     />
                 </div>
 
-                {/* Поле для населения */}
                 <div>
                     <label>Population:</label>
                     <input
@@ -96,7 +94,6 @@ const CityForm = () => {
                     />
                 </div>
 
-                {/* Поле для площади */}
                 <div>
                     <label>Area:</label>
                     <input
@@ -107,7 +104,6 @@ const CityForm = () => {
                     />
                 </div>
 
-                {/* Поле для столицы */}
                 <div>
                     <label>Capital:</label>
                     <input
@@ -117,7 +113,6 @@ const CityForm = () => {
                     />
                 </div>
 
-                {/* Поле для высоты над уровнем моря */}
                 <div>
                     <label>Meters Above Sea Level:</label>
                     <input
@@ -127,7 +122,6 @@ const CityForm = () => {
                     />
                 </div>
 
-                {/* Поле для кода города */}
                 <div>
                     <label>Car Code (Optional):</label>
                     <input
@@ -137,7 +131,6 @@ const CityForm = () => {
                     />
                 </div>
 
-                {/* Поле для агломерации */}
                 <div>
                     <label>Agglomeration:</label>
                     <input
@@ -148,7 +141,6 @@ const CityForm = () => {
                     />
                 </div>
 
-                {/* Поле для климата */}
                 <div>
                     <label>Climate:</label>
                     <select
@@ -161,12 +153,11 @@ const CityForm = () => {
                     </select>
                 </div>
 
-                {/* Выпадающий список для выбора координат */}
                 <div>
                     <label>Coordinates:</label>
                     <select
                         value={coordinates ? coordinates.id : ''}
-                        onChange={(e) => setCoordinates(availableCoordinates.find(coord => coord.id === e.target.value))}
+                        onChange={(e) => setCoordinates(availableCoordinates.find(coord => coord.id === parseInt(e.target.value)))}
                     >
                         <option value="">Select Coordinates</option>
                         {availableCoordinates.map(coord => (
@@ -177,23 +168,21 @@ const CityForm = () => {
                     </select>
                 </div>
 
-                {/* Выпадающий список для выбора губернатора */}
                 <div>
                     <label>Governor:</label>
                     <select
                         value={governor ? governor.id : ''}
-                        onChange={(e) => setGovernor(availableGovernors.find(gov => gov.id === e.target.value))}
+                        onChange={(e) => setGovernor(availableGovernors.find(gov => gov.id === parseInt(e.target.value)))}
                     >
                         <option value="">Select Governor</option>
                         {availableGovernors.map(gov => (
                             <option key={gov.id} value={gov.id}>
-                                {`${gov.firstName} ${gov.lastName}`}
+                                {`${gov.height} `}
                             </option>
                         ))}
                     </select>
                 </div>
 
-                {/* Отправка формы */}
                 <button type="submit">Create City</button>
             </form>
         </div>

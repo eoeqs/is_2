@@ -6,12 +6,10 @@ const CoordinatesForm = ({ onCoordinatesCreated }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Преобразуем значения x и y в числа перед отправкой
         const coordinates = { x: parseFloat(x), y: parseFloat(y) };
         if (!isNaN(coordinates.x) && !isNaN(coordinates.y)) {
-            onCoordinatesCreated(coordinates); // Отправка координат родительскому компоненту
+            onCoordinatesCreated(coordinates);
         } else {
-            // Добавить обработку ошибок, если координаты не числа
             console.error("Invalid coordinates");
         }
     };

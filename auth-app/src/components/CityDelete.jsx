@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';  // Используем useNavigate вместо useHistory
 import { useAuth } from "../AuthProvider";
 
-const CityInfo = ({ match }) => {
+const CityDelete = ({ match }) => {
     const { token } = useAuth();
     const [city, setCity] = useState(null);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();  // Инициализация navigate
 
     useEffect(() => {
         const fetchCityData = async () => {
@@ -26,24 +28,29 @@ const CityInfo = ({ match }) => {
         fetchCityData();
     }, [token, match.params.id]);
 
+    const handleDelete = async () => {
+        try {
+            await axios.delete(`/cities/${match.params.id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            alert('City deleted successfully');
+            navigate('/cities');
+        } catch (error) {
+            console.error('Error deleting city:', error);
+        }
+    };
+
     if (loading) return <div>Loading...</div>;
 
     return (
         <div>
-            <h2>City Details</h2>
+            <h2>Delete City</h2>
             {city ? (
                 <div>
-                    <h2>City Information</h2>
-                    <p><strong>Name:</strong> {city.name}</p>
-                    <p><strong>Population:</strong> {city.population}</p>
-                    <p><strong>Area:</strong> {city.area}</p>
-                    <p><strong>Capital:</strong> {city.capital ? "Yes" : "No"}</p>
-                    <p><strong>Meters Above Sea Level:</strong> {city.metersAboveSeaLevel}</p>
-                    <p><strong>Car Code:</strong> {city.carCode}</p>
-                    <p><strong>Agglomeration:</strong> {city.agglomeration}</p>
-                    <p><strong>Climate:</strong> {city.climate}</p>
-                    <p><strong>Coordinates:</strong> X: {city.coordinates.x}, Y: {city.coordinates.y}</p>
-                    <p><strong>Governor:</strong> {city.governor.height}</p>
+                    <p>Are you sure you want to delete the city: {city.name}?</p>
+                    <button onClick={handleDelete}>Delete</button>
                 </div>
             ) : (
                 <p>City not found.</p>
@@ -52,4 +59,4 @@ const CityInfo = ({ match }) => {
     );
 };
 
-export default CityInfo;
+export default CityDelete;

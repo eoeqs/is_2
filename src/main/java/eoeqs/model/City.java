@@ -65,8 +65,9 @@ public class City {
     @Column(nullable = false)
     private Climate climate;
 
-    @ManyToOne( cascade = CascadeType.ALL)
-    @JoinColumn(name = "governor_id", nullable = false)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "governor_id")
+    @NotNull(message = "Governor cannot be null")
     private Human governor;
 
     @ManyToOne

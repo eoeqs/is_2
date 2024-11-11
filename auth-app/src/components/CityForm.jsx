@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {useAuth} from "../AuthProvider";
+import { useAuth } from "../AuthProvider";
 
 const CityForm = () => {
-    const {token, userId} = useAuth();
+    const { token, userId } = useAuth(); // Получаем токен и id пользователя из контекста
     const [name, setName] = useState('');
     const [population, setPopulation] = useState('');
     const [area, setArea] = useState('');
@@ -45,19 +45,17 @@ const CityForm = () => {
         const city = {
             name,
             population: Number(population),
-            coordinates: coordinates ? coordinates.id : null,
-            governor: governor ? governor.id : null,
+            coordinates: coordinates ? { id: coordinates.id } : null,
+            governor: governor ? { id: governor.id } : null,
             area: Number(area),
             capital,
             metersAboveSeaLevel: Number(metersAboveSeaLevel),
             carCode: Number(carCode),
             agglomeration: Number(agglomeration),
             climate,
-            user: {id: userId},
+            user: { id: userId },
         };
-        console.log("Sending city data:", city);
-        console.log("Authorization token:", token);
-
+        console.log(city)
         try {
             const response = await axios.post('/cities', city, {
                 headers: {

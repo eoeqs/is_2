@@ -1,7 +1,11 @@
 package eoeqs.controller;
 
 import eoeqs.model.City;
+import eoeqs.model.Coordinates;
+import eoeqs.model.Human;
 import eoeqs.model.User;
+import eoeqs.repository.CoordinatesRepository;
+import eoeqs.repository.HumanRepository;
 import eoeqs.repository.UserRepository;
 import eoeqs.service.CityService;
 import org.slf4j.Logger;
@@ -20,12 +24,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/cities")
 public class CityController {
-
+    private final CoordinatesRepository coordinatesRepository;
+    private final HumanRepository humanRepository;
     private static final Logger logger = LoggerFactory.getLogger(CityController.class);
     private final UserRepository userRepository;
     private final CityService cityService;
 
-    public CityController(UserRepository userRepository, CityService cityService) {
+    public CityController(CoordinatesRepository coordinatesRepository, HumanRepository humanRepository, UserRepository userRepository, CityService cityService) {
+        this.coordinatesRepository = coordinatesRepository;
+        this.humanRepository = humanRepository;
         this.userRepository = userRepository;
         this.cityService = cityService;
     }
@@ -35,15 +42,16 @@ public class CityController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         logger.info("receiveed authentication {}", authentication);
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
-//            Object principal = authentication.getPrincipal();
-//            System.out.println(principal);
-//            if (principal instanceof User) {
-//                Long userId = ((User) principal).getId();
-//                System.out.println("User ID: " + userId);
-//            }
+
             String username = userDetails.getUsername();
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            Coordinates coordinates = coordinatesRepository.findById(city.getCoordinates().getId())
+                    .orElseThrow(() -> new UsernameNotFoundException("Coordinates not found"));
+            city.setCoordinates(coordinates);
+            Human human = humanRepository.findById(city.getGovernor().getId())
+                    .orElseThrow(() -> new UsernameNotFoundException("Governor not found"));
+            city.setGovernor(human);
 
             city.setUser(user);
             logger.info("Received city data for creation: {}", city);

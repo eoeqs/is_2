@@ -17,7 +17,6 @@ import java.time.ZonedDateTime;
 public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Min(1)
     private long id;
 
     @Column(nullable = false, unique = true)
@@ -46,7 +45,6 @@ public class City {
     @Min(1)
     private Long population;
 
-//    @PrePersist
     private ZonedDateTime establishmentDate;
 
     @Column(nullable = false)
@@ -67,7 +65,7 @@ public class City {
     @Column(nullable = false)
     private Climate climate;
 
-    @ManyToOne(optional = false, cascade = CascadeType.MERGE)
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "governor_id")
     @NotNull(message = "Governor cannot be null")
     private Human governor;

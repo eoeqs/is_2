@@ -9,7 +9,7 @@ const CityList = () => {
 
     const fetchCities = async (page) => {
         try {
-            const response = await axios.get(`/api/cities?page=${page}`);
+            const response = await axios.get(`/cities?page=${page}`);
             setCities(response.data.cities);
             setTotalPages(response.data.totalPages);
         } catch (error) {

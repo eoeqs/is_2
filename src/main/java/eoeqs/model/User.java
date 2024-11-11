@@ -69,9 +69,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    public Role getRole() {
-        return roles.stream().findFirst()
-                .orElseThrow(() -> new IllegalStateException("User has no roles assigned"));
-    }
 }

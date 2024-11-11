@@ -17,9 +17,11 @@ import java.util.Collection;
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     private final UserRepository userRepository;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
-    public CustomAuthenticationProvider(UserRepository userRepository) {
+    public CustomAuthenticationProvider(UserRepository userRepository, UserDetailsServiceImpl userDetailsServiceImpl) {
         this.userRepository = userRepository;
+        this.userDetailsServiceImpl = userDetailsServiceImpl;
     }
 
     @Override
@@ -27,10 +29,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
         User user = userRepository.findByUsername(username).orElseThrow();
+        Collection<GrantedAuthority> authorities = user.getAuthorities();
+
+
         if (!password.equals(user.getPassword())) {
             throw new BadCredentialsException("Authentication failed.");
         }
-        Collection<GrantedAuthority> authorities = user.getAuthorities();
 
         return new UsernamePasswordAuthenticationToken(username, password, authorities);
 

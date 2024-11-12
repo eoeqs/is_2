@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import ReactPaginate from 'react-paginate';
+import ClimateFilter from './ClimateFilter';
 
 const CityActionSelector = () => {
     const { token } = useAuth();
@@ -10,6 +11,8 @@ const CityActionSelector = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [citiesPerPage] = useState(10);
     const [selectedCityId, setSelectedCityId] = useState('');
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchCities = async () => {
@@ -17,7 +20,12 @@ const CityActionSelector = () => {
                 const response = await axios.get('/cities', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                setCities(response.data);
+
+                if (Array.isArray(response.data)) {
+                    setCities(response.data);
+                } else {
+                    console.error('Expected an array of cities but got:', response.data);
+                }
             } catch (error) {
                 console.error('Error fetching cities:', error);
             }
@@ -28,7 +36,34 @@ const CityActionSelector = () => {
 
     const indexOfLastCity = (currentPage + 1) * citiesPerPage;
     const indexOfFirstCity = indexOfLastCity - citiesPerPage;
-    const currentCities = cities.slice(indexOfFirstCity, indexOfLastCity);
+
+    const filteredCities = Array.isArray(cities) ? cities.filter((city) => {
+        const searchableString = Object.values(city).join(' ').toLowerCase();
+        return searchableString.includes(searchTerm.toLowerCase());
+    }) : [];
+
+    const getSortValue = (city, key) => {
+        if (key === 'coordinates') {
+            return `${city.coordinates?.x || ''}, ${city.coordinates?.y || ''}`;
+        }
+        if (key === 'governor') {
+            return city.governor?.height || '';
+        }
+        return city[key] ? city[key].toString().toLowerCase() : '';
+    };
+
+    const sortedCities = [...filteredCities].sort((a, b) => {
+        if (sortConfig.key) {
+            const aValue = getSortValue(a, sortConfig.key);
+            const bValue = getSortValue(b, sortConfig.key);
+
+            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
+    const currentCities = sortedCities.slice(indexOfFirstCity, indexOfLastCity);
 
     const handlePageChange = ({ selected }) => {
         setCurrentPage(selected);
@@ -36,6 +71,14 @@ const CityActionSelector = () => {
 
     const handleCityChange = (e) => {
         setSelectedCityId(e.target.value);
+    };
+
+    const requestSort = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
     };
 
     return (
@@ -70,23 +113,43 @@ const CityActionSelector = () => {
                 </Link>
             </div>
 
+            <ClimateFilter />
+
             <h3>City List</h3>
+            <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+            />
+
             <table>
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Population</th>
-                    <th>Area</th>
-                    <th>Capital</th>
-                    <th>Climate</th>
-                    <th>Coordinates</th>
-                    <th>Governor (Height)</th>
-                    <th>Creation Date</th>
-                    <th>Establishment Date</th>
-                    <th>Meters Above Sea Level</th>
-                    <th>Car Code</th>
-                    <th>Agglomeration</th>
+                    {[
+                        { label: 'ID', key: 'id' },
+                        { label: 'Name', key: 'name' },
+                        { label: 'Population', key: 'population' },
+                        { label: 'Area', key: 'area' },
+                        { label: 'Capital', key: 'capital' },
+                        { label: 'Climate', key: 'climate' },
+                        { label: 'Coordinates', key: 'coordinates' },
+                        { label: 'Governor (Height)', key: 'governor' },
+                        { label: 'Creation Date', key: 'creationDate' },
+                        { label: 'Establishment Date', key: 'establishmentDate' },
+                        { label: 'Meters Above Sea Level', key: 'metersAboveSeaLevel' },
+                        { label: 'Car Code', key: 'carCode' },
+                        { label: 'Agglomeration', key: 'agglomeration' },
+                    ].map((column) => (
+                        <th key={column.key}>
+                            {column.label}
+                            <button onClick={() => requestSort(column.key)}>
+                                {sortConfig.key === column.key ? (
+                                    sortConfig.direction === 'asc' ? '↑' : '↓'
+                                ) : '↕'}
+                            </button>
+                        </th>
+                    ))}
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -116,9 +179,15 @@ const CityActionSelector = () => {
                 </tbody>
             </table>
 
+            <div>
+                <span>PageCount: </span>
+                <span>{Math.ceil(cities.length / citiesPerPage)}</span>
+            </div>
+
             <ReactPaginate
                 previousLabel={<button className="pagination-button">Previous</button>}
                 nextLabel={<button className="pagination-button">Next</button>}
+                pageCount={Math.ceil(cities.length / citiesPerPage)}
                 onPageChange={handlePageChange}
                 containerClassName={"pagination"}
                 activeClassName={"active"}

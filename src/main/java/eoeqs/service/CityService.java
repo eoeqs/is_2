@@ -1,6 +1,7 @@
 package eoeqs.service;
 
 import eoeqs.model.City;
+import eoeqs.model.Climate;
 import eoeqs.repository.CityRepository;
 import eoeqs.repository.HumanRepository;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CityService {
@@ -67,5 +69,17 @@ public class CityService {
     public List<City> getAllCities() {
         logger.info("Fetching all cities from database");
         return cityRepository.findAll();
+    }
+
+    public List<City> getCitiesWithClimateLessThan(Climate climate) {
+        return cityRepository.findAll().stream()
+                .filter(city -> city.getClimate().ordinal() < climate.ordinal())
+                .collect(Collectors.toList());
+    }
+
+    public List<City> getCitiesWithClimateGreaterThan(Climate climate) {
+        return cityRepository.findAll().stream()
+                .filter(city -> city.getClimate().ordinal() > climate.ordinal())
+                .collect(Collectors.toList());
     }
 }

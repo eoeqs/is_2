@@ -1,9 +1,6 @@
 package eoeqs.controller;
 
-import eoeqs.model.City;
-import eoeqs.model.Coordinates;
-import eoeqs.model.Human;
-import eoeqs.model.User;
+import eoeqs.model.*;
 import eoeqs.repository.CoordinatesRepository;
 import eoeqs.repository.HumanRepository;
 import eoeqs.repository.UserRepository;
@@ -39,6 +36,7 @@ public class CityController {
 
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
             String username = userDetails.getUsername();
             return userRepository.findByUsername(username)
@@ -100,5 +98,30 @@ public class CityController {
 
         List<City> cities = cityService.getAllCities();
         return ResponseEntity.ok(cities);
+    }
+
+    @GetMapping("/filter-by-climate")
+    public ResponseEntity<List<City>> getCitiesWithClimateLessThan(@RequestParam Climate climate,
+                                                                   @RequestParam String filterType,
+                                                                   @RequestHeader("Authorization") String token) {
+
+
+        {
+            User user = getAuthenticatedUser();
+            logger.info("Getting cities with climate less or greater than smth for user: {}", user.getUsername());
+            List<City> filteredCities;
+
+            if ("less".equals(filterType)) {
+                filteredCities = cityService.getCitiesWithClimateLessThan(climate);
+            } else if ("more".equals(filterType)) {
+                filteredCities = cityService.getCitiesWithClimateGreaterThan(climate);
+            } else {
+                return ResponseEntity.badRequest().body(null);
+            }
+
+            return ResponseEntity.ok(filteredCities);
+        }
+
+
     }
 }

@@ -15,7 +15,9 @@ const CityActionSelector = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAgglomeration, setSelectedAgglomeration] = useState('');
-    const [showUniqueAgglomerations, setShowUniqueAgglomerations] = useState(false); // Состояние для отображения уникальных агломераций
+    const [showUniqueAgglomerations, setShowUniqueAgglomerations] = useState(false);
+    const [distance, setDistance] = useState(null); // Состояние для хранения расстояния
+    const [loadingDistance, setLoadingDistance] = useState(false); // Состояние для отслеживания загрузки
 
     useEffect(() => {
         const fetchCities = async () => {
@@ -93,6 +95,23 @@ const CityActionSelector = () => {
         setShowUniqueAgglomerations(!showUniqueAgglomerations);
     };
 
+    // Функция для запроса расстояния до города с наибольшей площадью
+    const handleFindDistance = async () => {
+        setLoadingDistance(true);
+        setDistance(null); // Сбросить предыдущее расстояние
+
+        try {
+            const response = await axios.get('/cities/distance-to-largest-city', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setDistance(response.data); // Сохраняем расстояние
+        } catch (error) {
+            console.error('Error fetching distance:', error);
+        } finally {
+            setLoadingDistance(false);
+        }
+    };
+
     return (
         <div>
             <h2>What would you like to do?</h2>
@@ -125,7 +144,7 @@ const CityActionSelector = () => {
                 </Link>
             </div>
 
-            <ClimateFilter />
+            <ClimateFilter/>
 
             <div>
                 <label>
@@ -139,6 +158,17 @@ const CityActionSelector = () => {
             </div>
             {showUniqueAgglomerations && <AgglomerationFilter/>}
 
+            <div>
+                <button onClick={handleFindDistance} disabled={loadingDistance}>
+                    {loadingDistance ? 'Loading...' : 'Find Distance to Largest City from (0;0)'}
+                </button>
+
+                {distance !== null && !loadingDistance && (
+                    <div>
+                        <h4>Distance to the Largest City: {distance} km</h4>
+                    </div>
+                )}
+            </div>
             <h3>City List</h3>
             <input
                 type="text"
@@ -151,19 +181,19 @@ const CityActionSelector = () => {
                 <thead>
                 <tr>
                     {[
-                        { label: 'ID', key: 'id' },
-                        { label: 'Name', key: 'name' },
-                        { label: 'Population', key: 'population' },
-                        { label: 'Area', key: 'area' },
-                        { label: 'Capital', key: 'capital' },
-                        { label: 'Climate', key: 'climate' },
-                        { label: 'Coordinates', key: 'coordinates' },
-                        { label: 'Governor (Height)', key: 'governor' },
-                        { label: 'Creation Date', key: 'creationDate' },
-                        { label: 'Establishment Date', key: 'establishmentDate' },
-                        { label: 'Meters Above Sea Level', key: 'metersAboveSeaLevel' },
-                        { label: 'Car Code', key: 'carCode' },
-                        { label: 'Agglomeration', key: 'agglomeration' },
+                        {label: 'ID', key: 'id'},
+                        {label: 'Name', key: 'name'},
+                        {label: 'Population', key: 'population'},
+                        {label: 'Area', key: 'area'},
+                        {label: 'Capital', key: 'capital'},
+                        {label: 'Climate', key: 'climate'},
+                        {label: 'Coordinates', key: 'coordinates'},
+                        {label: 'Governor (Height)', key: 'governor'},
+                        {label: 'Creation Date', key: 'creationDate'},
+                        {label: 'Establishment Date', key: 'establishmentDate'},
+                        {label: 'Meters Above Sea Level', key: 'metersAboveSeaLevel'},
+                        {label: 'Car Code', key: 'carCode'},
+                        {label: 'Agglomeration', key: 'agglomeration'},
                     ].map((column) => (
                         <th key={column.key}>
                             {column.label}
@@ -220,6 +250,8 @@ const CityActionSelector = () => {
                 previousClassName="previous-item"
                 nextClassName="next-item"
             />
+
+
         </div>
     );
 };

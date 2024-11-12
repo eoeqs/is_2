@@ -135,4 +135,17 @@ public class CityController {
         }
     }
 
+    @GetMapping("/distance-to-largest-city")
+    public ResponseEntity<Double> getDistanceToLargestCity() {
+        User user = getAuthenticatedUser();
+        logger.info("Getting distance to largest city for user: {}", user.getUsername());
+
+        try {
+            double distance = cityService.calculateDistanceToLargestCity();
+            return ResponseEntity.ok(distance);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        }
+    }
 }

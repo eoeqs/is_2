@@ -2,12 +2,14 @@ package eoeqs.service;
 
 import eoeqs.model.City;
 import eoeqs.model.Climate;
+import eoeqs.model.Coordinates;
 import eoeqs.repository.CityRepository;
 import eoeqs.repository.HumanRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -91,5 +93,22 @@ public class CityService {
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    public double calculateDistanceToLargestCity() {
+        City largestCity = cityRepository.findAll().stream()
+                .max(Comparator.comparing(City::getArea))
+                .orElseThrow(() -> new RuntimeException("No cities found"));
+
+        Coordinates coordinates = largestCity.getCoordinates();
+        Float x = coordinates.getX();
+        double y = coordinates.getY();
+
+        if (x == null || x <= -586) {
+            throw new IllegalArgumentException("Invalid coordinates: x must be greater than -586 and cannot be null");
+        }
+
+
+        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
 }

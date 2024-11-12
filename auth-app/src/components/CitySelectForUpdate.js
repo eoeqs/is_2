@@ -50,6 +50,8 @@ const CitySelectForUpdate = () => {
             <button onClick={handleProceed} disabled={!selectedCityId}>
                 Proceed to Update
             </button>
+            <button onClick={() => navigate('/city-actions')}>Back to Actions</button>
+
         </div>
     );
 };

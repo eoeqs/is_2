@@ -8,7 +8,8 @@ import AdminPanel from './components/AdminPanel';
 import CityActionSelector from './components/CityActionSelector';
 import CityUpdate from './components/CityUpdate';
 import CitySelectForUpdate from './components/CitySelectForUpdate';
-import CityDelete from './components/CityDelete';  // Импортируем новый компонент
+import CityDelete from './components/CityDelete';
+import CityInfo from "./components/CityInfo";  // Импортируем новый компонент
 
 const App = () => {
     const [user, setUser] = useState({ roles: [] });
@@ -36,6 +37,7 @@ const App = () => {
                 <Route path="/cities/update/:id" element={<CityUpdate />} />
                 <Route path="/cities/update" element={<CitySelectForUpdate />} />
                 <Route path="/cities/delete" element={<CityDelete />} />
+                <Route path="/cities/info/:id" element={<CityInfo/>} />
                 <Route
                     path="/admin"
                     element={user && user.roles.includes('ADMIN') ? <AdminPanel /> : <Navigate to="/" />}

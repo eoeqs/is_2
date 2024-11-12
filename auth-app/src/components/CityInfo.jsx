@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from "../AuthProvider";
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 
 const CityInfo = () => {
     const { id } = useParams();  // Получаем ID из URL
@@ -9,7 +9,7 @@ const CityInfo = () => {
     const [city, setCity] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const navigate = useNavigate();  // Хук для навигации после удаления
     useEffect(() => {
         const fetchCityData = async () => {
             try {
@@ -43,12 +43,16 @@ const CityInfo = () => {
                     <p><strong>Area:</strong> {city.area}</p>
                     <p><strong>Capital:</strong> {city.capital ? 'Yes' : 'No'}</p>
                     <p><strong>Climate:</strong> {city.climate}</p>
-                    <p><strong>Coordinates:</strong> {city.coordinates ? `X: ${city.coordinates.x}, Y: ${city.coordinates.y}` : 'N/A'}</p>
+                    <p>
+                        <strong>Coordinates:</strong> {city.coordinates ? `X: ${city.coordinates.x}, Y: ${city.coordinates.y}` : 'N/A'}
+                    </p>
                     <p><strong>Governor (height):</strong> {city.governor ? city.governor.height : 'N/A'}</p>
                 </div>
             ) : (
                 <p>City not found.</p>
             )}
+            <button onClick={() => navigate('/city-actions')}>Back to Actions</button>
+
         </div>
     );
 };

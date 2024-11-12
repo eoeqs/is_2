@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from "../AuthProvider";
+import {useNavigate} from "react-router-dom";
 
 const CityForm = () => {
     const { token, userId } = useAuth(); // Получаем токен и id пользователя из контекста
@@ -39,6 +40,7 @@ const CityForm = () => {
 
         fetchData();
     }, [token]);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -67,6 +69,7 @@ const CityForm = () => {
                 },
             });
             console.log('City created:', response.data);
+            navigate('/city-actions');
         } catch (error) {
             console.error('Error creating city:', error);
         }
@@ -186,6 +189,9 @@ const CityForm = () => {
                 </div>
 
                 <button type="submit">Create City</button>
+                <div></div>
+                <button onClick={() => navigate('/city-actions')}>Back to Actions</button>
+
             </form>
         </div>
     );

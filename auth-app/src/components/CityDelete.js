@@ -9,6 +9,7 @@ const CityDelete = () => {
     const [selectedCityId, setSelectedCityId] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const navigate = useNavigate();  // Хук для навигации после удаления
+    const [message, setMessage] = useState('');
 
     useEffect(() => {
         const fetchCities = async () => {
@@ -43,9 +44,12 @@ const CityDelete = () => {
                         Authorization: `Bearer ${token}`,  // Передаем токен
                     },
                 });
-                console.log('City deleted successfully');
-                navigate('/cities');  // Перенаправляем после удаления
+                setMessage('City successfully deleted!');
+                setTimeout(() => {
+                    navigate('/city-actions'); // Перенаправляем на страницу действий
+                }, 3000);  // Перенаправляем после удаления
             } catch (error) {
+                setMessage('Error deleting city');
                 console.error('Error deleting city:', error);
             } finally {
                 setIsDeleting(false);  // Скрываем индикатор загрузки
@@ -67,6 +71,10 @@ const CityDelete = () => {
             <button onClick={handleDeleteCity} disabled={!selectedCityId || isDeleting}>
                 {isDeleting ? 'Deleting...' : 'Delete City'}
             </button>
+            {message && <p>{message}</p>}
+
+            <button onClick={() => navigate('/city-actions')}>Back to Actions</button>
+
         </div>
     );
 };

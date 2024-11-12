@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 
 const CityUpdate = () => {
@@ -44,6 +44,7 @@ const CityUpdate = () => {
             }));
         }
     };
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -59,6 +60,7 @@ const CityUpdate = () => {
             await axios.put(`/cities/${id}`, cityToUpdate, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            navigate('/city-actions');
             console.log('City updated successfully');
         } catch (error) {
             console.error('Error updating city:', error);
@@ -86,7 +88,7 @@ const CityUpdate = () => {
                                             type="text"
                                             value={value || ''}
                                             readOnly
-                                            style={{ backgroundColor: '#f0f0f0' }}
+                                            style={{backgroundColor: '#f0f0f0'}}
                                         />
                                     ) : key === 'capital' ? (
                                         <input
@@ -114,16 +116,21 @@ const CityUpdate = () => {
                                     )}
                                 </td>
                                 <td>
-                                    {key === 'id' && <span>Значение этого поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически</span>}
-                                    {key === 'name' && <span>Поле не может быть null, Строка не может быть пустой</span>}
+                                    {key === 'id' &&
+                                        <span>Значение этого поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически</span>}
+                                    {key === 'name' &&
+                                        <span>Поле не может быть null, Строка не может быть пустой</span>}
                                     {key === 'coordinates' && <span>Поле не может быть null</span>}
-                                    {key === 'creationDate' && <span>Поле не может быть null, Значение этого поля должно генерироваться автоматически</span>}
+                                    {key === 'creationDate' &&
+                                        <span>Поле не может быть null, Значение этого поля должно генерироваться автоматически</span>}
                                     {key === 'area' && <span>Значение поля должно быть больше 0</span>}
-                                    {key === 'population' && <span>Значение поля должно быть больше 0, Поле не может быть null</span>}
+                                    {key === 'population' &&
+                                        <span>Значение поля должно быть больше 0, Поле не может быть null</span>}
                                     {key === 'establishmentDate' && <span>Поле не может быть null</span>}
                                     {key === 'capital' && <span>Поле не может быть null</span>}
                                     {key === 'metersAboveSeaLevel' && <span>Значение поля должно быть больше 0</span>}
-                                    {key === 'carCode' && <span>Значение поля должно быть больше 0, Максимальное значение поля: 1000, Поле может быть null</span>}
+                                    {key === 'carCode' &&
+                                        <span>Значение поля должно быть больше 0, Максимальное значение поля: 1000, Поле может быть null</span>}
                                     {key === 'agglomeration' && <span>Значение поля должно быть больше 0</span>}
                                     {key === 'climate' && <span>Поле не может быть null</span>}
                                     {key === 'governor' && <span>Поле не может быть null</span>}
@@ -154,7 +161,7 @@ const CityUpdate = () => {
                                                 type="text"
                                                 value={value || ''}
                                                 readOnly
-                                                style={{ backgroundColor: '#f0f0f0' }}
+                                                style={{backgroundColor: '#f0f0f0'}}
                                             />
                                         )}
                                     </td>
@@ -185,7 +192,7 @@ const CityUpdate = () => {
                                                 type="text"
                                                 value={value || ''}
                                                 readOnly
-                                                style={{ backgroundColor: '#f0f0f0' }}
+                                                style={{backgroundColor: '#f0f0f0'}}
                                             />
                                         )}
                                     </td>
@@ -197,6 +204,8 @@ const CityUpdate = () => {
                 )}
 
                 <button type="submit">Save Changes</button>
+                <button onClick={() => navigate('/city-actions')}>Back to Actions</button>
+
             </form>
         </div>
     );

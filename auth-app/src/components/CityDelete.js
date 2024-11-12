@@ -8,7 +8,7 @@ const CityDelete = () => {
     const [cities, setCities] = useState([]);
     const [selectedCityId, setSelectedCityId] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
-    const navigate = useNavigate();  // Хук для навигации после удаления
+    const navigate = useNavigate();
     const [message, setMessage] = useState('');
 
     useEffect(() => {

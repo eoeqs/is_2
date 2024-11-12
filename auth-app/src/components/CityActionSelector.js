@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 
 const CityActionSelector = () => {
-    const { token } = useAuth();  // Получаем токен из контекста
+    const navigate = useNavigate();
+
+    const { token, logout } = useAuth();
     const [cities, setCities] = useState([]);
     const [selectedCityId, setSelectedCityId] = useState('');
 
@@ -13,10 +15,10 @@ const CityActionSelector = () => {
             try {
                 const response = await axios.get('/cities', {
                     headers: {
-                        Authorization: `Bearer ${token}`,  // Передаем токен
+                        Authorization: `Bearer ${token}`,
                     },
                 });
-                setCities(response.data);  // Заполняем список городов
+                setCities(response.data);
             } catch (error) {
                 console.error('Error fetching cities:', error);
             }
@@ -28,7 +30,10 @@ const CityActionSelector = () => {
     const handleCityChange = (e) => {
         setSelectedCityId(e.target.value);
     };
-
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
     return (
         <div>
             <h2>What would you like to do?</h2>
@@ -59,6 +64,10 @@ const CityActionSelector = () => {
                 <Link to="/cities/delete">
                     <button>Delete an Existing City</button>
                 </Link>
+            </div>
+
+            <div>
+                <button onClick={handleLogout}>Logout</button>
             </div>
         </div>
     );

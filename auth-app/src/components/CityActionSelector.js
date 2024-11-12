@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import ReactPaginate from 'react-paginate';
 import ClimateFilter from './ClimateFilter';
+import AgglomerationFilter from './AgglomerationFilter';
 
 const CityActionSelector = () => {
     const { token } = useAuth();
@@ -13,6 +14,8 @@ const CityActionSelector = () => {
     const [selectedCityId, setSelectedCityId] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedAgglomeration, setSelectedAgglomeration] = useState('');
+    const [showUniqueAgglomerations, setShowUniqueAgglomerations] = useState(false); // Состояние для отображения уникальных агломераций
 
     useEffect(() => {
         const fetchCities = async () => {
@@ -39,7 +42,8 @@ const CityActionSelector = () => {
 
     const filteredCities = Array.isArray(cities) ? cities.filter((city) => {
         const searchableString = Object.values(city).join(' ').toLowerCase();
-        return searchableString.includes(searchTerm.toLowerCase());
+        return searchableString.includes(searchTerm.toLowerCase()) &&
+            (selectedAgglomeration ? city.agglomeration === selectedAgglomeration : true);
     }) : [];
 
     const getSortValue = (city, key) => {
@@ -81,6 +85,14 @@ const CityActionSelector = () => {
         setSortConfig({ key, direction });
     };
 
+    const handleAgglomerationFilterChange = (selectedAgglomeration) => {
+        setSelectedAgglomeration(selectedAgglomeration);
+    };
+
+    const toggleUniqueAgglomerations = () => {
+        setShowUniqueAgglomerations(!showUniqueAgglomerations);
+    };
+
     return (
         <div>
             <h2>What would you like to do?</h2>
@@ -114,6 +126,18 @@ const CityActionSelector = () => {
             </div>
 
             <ClimateFilter />
+
+            <div>
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={showUniqueAgglomerations}
+                        onChange={() => setShowUniqueAgglomerations(!showUniqueAgglomerations)}
+                    />
+                    Show Unique Agglomerations
+                </label>
+            </div>
+            {showUniqueAgglomerations && <AgglomerationFilter/>}
 
             <h3>City List</h3>
             <input

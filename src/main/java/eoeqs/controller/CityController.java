@@ -15,8 +15,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cities")
@@ -121,7 +121,18 @@ public class CityController {
 
             return ResponseEntity.ok(filteredCities);
         }
-
-
     }
+    @GetMapping("/unique-agglomerations")
+    public ResponseEntity<List<Long>> getUniqueAgglomerations(@RequestHeader("Authorization") String token) {
+        User user = getAuthenticatedUser();
+        logger.info("Getting cities with unique agglomerations for user: {}", user.getUsername());
+
+        try {
+            List<Long> uniqueAgglomerations = cityService.getUniqueAgglomerations();
+            return ResponseEntity.ok(uniqueAgglomerations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

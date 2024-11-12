@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -80,6 +81,15 @@ public class CityService {
     public List<City> getCitiesWithClimateGreaterThan(Climate climate) {
         return cityRepository.findAll().stream()
                 .filter(city -> city.getClimate().ordinal() > climate.ordinal())
+                .collect(Collectors.toList());
+    }
+
+
+    public List<Long> getUniqueAgglomerations() {
+        return cityRepository.findAll().stream()
+                .map(City::getAgglomeration)
+                .filter(Objects::nonNull)
+                .distinct()
                 .collect(Collectors.toList());
     }
 }

@@ -13,7 +13,7 @@ const Login = () => {
     useEffect(() => {
         if (token) {
             console.log("token in login (after update)", token);
-            navigate('/city-form');
+            navigate('/city-actions');
         }
     }, [token, navigate]);
 

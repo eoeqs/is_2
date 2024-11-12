@@ -44,17 +44,16 @@ public class CityService {
         logger.info("Updating city with ID: {} and data: {}", id, city);
         return cityRepository.findById(id)
                 .map(existingCity -> {
-                    existingCity.setName(city.getName());
-                    existingCity.setCoordinates(city.getCoordinates());
-                    existingCity.setArea(city.getArea());
-                    existingCity.setPopulation(city.getPopulation());
-                    existingCity.setEstablishmentDate(city.getEstablishmentDate());
-                    existingCity.setCapital(city.getCapital());
-                    existingCity.setMetersAboveSeaLevel(city.getMetersAboveSeaLevel());
-                    existingCity.setCarCode(city.getCarCode());
-                    existingCity.setAgglomeration(city.getAgglomeration());
-                    existingCity.setClimate(city.getClimate());
-                    existingCity.setGovernor(city.getGovernor());
+                    if (city.getName() != null) existingCity.setName(city.getName());
+                    if (city.getCoordinates() != null) existingCity.setCoordinates(city.getCoordinates());
+                    if (city.getArea() > 0) existingCity.setArea(city.getArea());
+                    if (city.getPopulation() != null && city.getPopulation() > 0) existingCity.setPopulation(city.getPopulation());
+                    if (city.getCapital() != null) existingCity.setCapital(city.getCapital());
+                    if (city.getMetersAboveSeaLevel() > 0) existingCity.setMetersAboveSeaLevel(city.getMetersAboveSeaLevel());
+                    if (city.getCarCode() != null) existingCity.setCarCode(city.getCarCode());
+                    if (city.getAgglomeration() > 0) existingCity.setAgglomeration(city.getAgglomeration());
+                    if (city.getClimate() != null) existingCity.setClimate(city.getClimate());
+                    if (city.getGovernor() != null) existingCity.setGovernor(city.getGovernor());
                     logger.info("City updated: {}", existingCity);
                     return cityRepository.save(existingCity);
                 }).orElseThrow(() -> new RuntimeException("City not found"));

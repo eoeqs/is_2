@@ -43,7 +43,6 @@ public class SecurityConfig {
                         .requestMatchers("/user/**", "/cities/**").hasAnyAuthority("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
-//                .authenticationProvider(authenticationProvider())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 

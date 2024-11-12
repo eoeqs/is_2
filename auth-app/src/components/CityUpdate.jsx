@@ -1,115 +1,202 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useAuth } from "../AuthProvider";
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../AuthProvider';
 
-const CityUpdate = ({ match }) => {
-    const { token } = useAuth();
-    const [city, setCity] = useState(null);
-    const [name, setName] = useState('');
-    const [population, setPopulation] = useState('');
-    const [area, setArea] = useState('');
-    const [capital, setCapital] = useState(true);
-    const [climate, setClimate] = useState('RAIN_FOREST');
-    const [loading, setLoading] = useState(true);
+const CityUpdate = () => {
+    const { id } = useParams();
+    const { token, userId } = useAuth();
+    const [cityData, setCityData] = useState(null);
+    const [updatedCityData, setUpdatedCityData] = useState(null);
+    const [climateOptions] = useState(["RAIN_FOREST", "MONSOON", "HUMIDCONTINENTAL"]); // Соответствующие значения перечисления
 
     useEffect(() => {
         const fetchCityData = async () => {
             try {
-                const response = await axios.get(`/cities/${match.params.id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                const response = await axios.get(`/cities/${id}`, {
+                    headers: { Authorization: `Bearer ${token}` }
                 });
-                const cityData = response.data;
-                setCity(cityData);
-                setName(cityData.name);
-                setPopulation(cityData.population);
-                setArea(cityData.area);
-                setCapital(cityData.capital);
-                setClimate(cityData.climate);
-                setLoading(false);
+                setCityData(response.data);
+                setUpdatedCityData(response.data);
             } catch (error) {
-                console.error('Error fetching city:', error);
-                setLoading(false);
+                console.error('Error fetching city data:', error);
             }
         };
 
-        fetchCityData();
-    }, [token, match.params.id]);
+        if (token) {
+            fetchCityData();
+        }
+    }, [id, token]);
+
+    const handleChange = (field, value, entity) => {
+        if (entity) {
+            setUpdatedCityData((prevData) => ({
+                ...prevData,
+                [entity]: {
+                    ...prevData[entity],
+                    [field]: value,
+                },
+            }));
+        } else {
+            setUpdatedCityData((prevData) => ({
+                ...prevData,
+                [field]: value,
+            }));
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const updatedCity = {
-            ...city,
-            name,
-            population: Number(population),
-            area: Number(area),
-            capital,
-            climate,
+
+        const cityToUpdate = {
+            ...updatedCityData,
+            updatedBy: userId,
+            updatedDate: new Date().toISOString(),
+            user: { id: userId },
         };
 
         try {
-            const response = await axios.put(`/cities/${match.params.id}`, updatedCity, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+            await axios.put(`/cities/${id}`, cityToUpdate, {
+                headers: { Authorization: `Bearer ${token}` }
             });
-            console.log('City updated:', response.data);
+            console.log('City updated successfully');
         } catch (error) {
             console.error('Error updating city:', error);
         }
     };
 
-    if (loading) return <div>Loading...</div>;
+    if (!updatedCityData) return <div>Loading...</div>;
+
+    const hasCoordinates = updatedCityData.coordinates && Object.keys(updatedCityData.coordinates).length > 0;
+    const hasGovernor = updatedCityData.governor && Object.keys(updatedCityData.governor).length > 0;
 
     return (
         <div>
             <h2>Update City</h2>
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Name:</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Population:</label>
-                    <input
-                        type="number"
-                        value={population}
-                        onChange={(e) => setPopulation(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Area:</label>
-                    <input
-                        type="number"
-                        value={area}
-                        onChange={(e) => setArea(e.target.value)}
-                    />
-                </div>
-                <div>
-                    <label>Capital:</label>
-                    <input
-                        type="checkbox"
-                        checked={capital}
-                        onChange={() => setCapital(!capital)}
-                    />
-                </div>
-                <div>
-                    <label>Climate:</label>
-                    <select
-                        value={climate}
-                        onChange={(e) => setClimate(e.target.value)}
-                    >
-                        <option value="RAIN_FOREST">Rain Forest</option>
-                        <option value="MONSOON">Monsoon</option>
-                        <option value="HUMIDCONTINENTAL">Humid Continental</option>
-                    </select>
-                </div>
-                <button type="submit">Update City</button>
+                <table>
+                    <tbody>
+                    {Object.entries(updatedCityData).map(([key, value]) => (
+                        (key !== 'coordinates' && key !== 'governor' && key !== 'user') && (
+                            <tr key={key}>
+                                <td>{key}</td>
+                                <td>
+                                    {key === 'id' || key === 'updatedBy' || key === 'updatedDate' ? (
+                                        <input
+                                            type="text"
+                                            value={value || ''}
+                                            readOnly
+                                            style={{ backgroundColor: '#f0f0f0' }}
+                                        />
+                                    ) : key === 'capital' ? (
+                                        <input
+                                            type="checkbox"
+                                            checked={value || false}
+                                            onChange={(e) => handleChange(key, e.target.checked)}
+                                        />
+                                    ) : key === 'climate' ? (
+                                        <select
+                                            value={value || ''}
+                                            onChange={(e) => handleChange(key, e.target.value)}
+                                        >
+                                            {climateOptions.map((climate) => (
+                                                <option key={climate} value={climate}>
+                                                    {climate.replace(/_/g, ' ')} {/* Подставим значение для пользователя */}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={typeof value === 'number' ? 'number' : 'text'}
+                                            value={value || ''}
+                                            onChange={(e) => handleChange(key, e.target.value)}
+                                        />
+                                    )}
+                                </td>
+                                <td>
+                                    {key === 'id' && <span>Значение этого поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически</span>}
+                                    {key === 'name' && <span>Поле не может быть null, Строка не может быть пустой</span>}
+                                    {key === 'coordinates' && <span>Поле не может быть null</span>}
+                                    {key === 'creationDate' && <span>Поле не может быть null, Значение этого поля должно генерироваться автоматически</span>}
+                                    {key === 'area' && <span>Значение поля должно быть больше 0</span>}
+                                    {key === 'population' && <span>Значение поля должно быть больше 0, Поле не может быть null</span>}
+                                    {key === 'establishmentDate' && <span>Поле не может быть null</span>}
+                                    {key === 'capital' && <span>Поле не может быть null</span>}
+                                    {key === 'metersAboveSeaLevel' && <span>Значение поля должно быть больше 0</span>}
+                                    {key === 'carCode' && <span>Значение поля должно быть больше 0, Максимальное значение поля: 1000, Поле может быть null</span>}
+                                    {key === 'agglomeration' && <span>Значение поля должно быть больше 0</span>}
+                                    {key === 'climate' && <span>Поле не может быть null</span>}
+                                    {key === 'governor' && <span>Поле не может быть null</span>}
+                                </td>
+                            </tr>
+                        )
+                    ))}
+                    </tbody>
+                </table>
+
+                {hasCoordinates && (
+                    <div>
+                        <h3>Coordinates</h3>
+                        <table>
+                            <tbody>
+                            {Object.entries(updatedCityData.coordinates).map(([key, value]) => (
+                                <tr key={key}>
+                                    <td>{key}</td>
+                                    <td>
+                                        {key !== 'id' ? (
+                                            <input
+                                                type="text"
+                                                value={value || ''}
+                                                onChange={(e) => handleChange(key, e.target.value, 'coordinates')}
+                                            />
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                value={value || ''}
+                                                readOnly
+                                                style={{ backgroundColor: '#f0f0f0' }}
+                                            />
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {hasGovernor && (
+                    <div>
+                        <h3>Governor</h3>
+                        <table>
+                            <tbody>
+                            {Object.entries(updatedCityData.governor).map(([key, value]) => (
+                                <tr key={key}>
+                                    <td>{key}</td>
+                                    <td>
+                                        {key !== 'id' ? (
+                                            <input
+                                                type="text"
+                                                value={value || ''}
+                                                onChange={(e) => handleChange(key, e.target.value, 'governor')}
+                                            />
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                value={value || ''}
+                                                readOnly
+                                                style={{ backgroundColor: '#f0f0f0' }}
+                                            />
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                <button type="submit">Save Changes</button>
             </form>
         </div>
     );

@@ -5,9 +5,9 @@ import Login from './components/Login';
 import Register from './components/Register';
 import CityForm from './components/CityForm';
 import AdminPanel from "./components/AdminPanel";
-import CityInfo from "./components/CityInfo";
+import CityActionSelector from "./components/CityActionSelector";
 import CityUpdate from "./components/CityUpdate";
-import CityDelete from "./components/CityDelete";
+import CitySelectForUpdate from "./components/CitySelectForUpdate";
 
 const App = () => {
     const [user, setUser] = useState({ roles: [] });
@@ -27,14 +27,14 @@ const App = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route path="/city-form" element={<CityForm />} />
+                <Route path="/city-actions" element={<CityActionSelector />} />
+                <Route path="/cities/create" element={<CityForm />} />
+                <Route path="/cities/update/:id" element={<CityUpdate />} />
+                <Route path="/cities/update" element={<CitySelectForUpdate />} />
                 <Route
                     path="/admin"
                     element={user && user.roles.includes('ADMIN') ? <AdminPanel /> : <Navigate to="/" />}
                 />
-                <Route path="/cities/:id" element={<CityInfo />} />
-                <Route path="/cities/:id/update" element={<CityUpdate />} />
-                <Route path="/cities/:id/delete" element={<CityDelete />} />
             </Routes>
         </Router>
     );

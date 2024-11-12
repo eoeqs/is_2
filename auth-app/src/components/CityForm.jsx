@@ -2,22 +2,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from "../AuthProvider";
 
-const CityForm = ({ cityId }) => {
-    const { token, userId } = useAuth();
-    const [action, setAction] = useState(cityId ? 'update' : 'create');
-    const [city, setCity] = useState({
-        name: '',
-        population: '',
-        area: '',
-        capital: true,
-        metersAboveSeaLevel: '',
-        carCode: '',
-        agglomeration: '',
-        climate: 'RAIN_FOREST',
-        coordinates: null,
-        governor: null,
-        user: { id: userId },
-    });
+const CityForm = () => {
+    const { token, userId } = useAuth(); // Получаем токен и id пользователя из контекста
+    const [name, setName] = useState('');
+    const [population, setPopulation] = useState('');
+    const [area, setArea] = useState('');
+    const [capital, setCapital] = useState(true);
+    const [metersAboveSeaLevel, setMetersAboveSeaLevel] = useState('');
+    const [carCode, setCarCode] = useState('');
+    const [agglomeration, setAgglomeration] = useState('');
+    const [climate, setClimate] = useState('RAIN_FOREST');
+    const [coordinates, setCoordinates] = useState(null);
+    const [governor, setGovernor] = useState(null);
     const [availableCoordinates, setAvailableCoordinates] = useState([]);
     const [availableGovernors, setAvailableGovernors] = useState([]);
 
@@ -36,66 +32,56 @@ const CityForm = ({ cityId }) => {
                 });
                 setAvailableCoordinates(coordinatesResponse.data);
                 setAvailableGovernors(governorsResponse.data);
-
-                if (cityId) {
-                    const cityResponse = await axios.get(`/cities/${cityId}`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    });
-                    setCity(cityResponse.data);
-                }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching available coordinates or governors:', error);
             }
         };
 
         fetchData();
-    }, [token, cityId]);
+    }, [token]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const response = action === 'create'
-                ? await axios.post('/cities', city, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                })
-                : await axios.put(`/cities/${cityId}`, city, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-            console.log(`${action === 'create' ? 'Created' : 'Updated'} city:`, response.data);
-        } catch (error) {
-            console.error(`Error ${action === 'create' ? 'creating' : 'updating'} city:`, error);
+        if (population <= 0 || area <= 0 || !name.trim()) {
+            alert('Please ensure all fields are filled correctly.');
+            return;
         }
-    };
-
-    const handleDelete = async () => {
+        const city = {
+            name,
+            population: Number(population),
+            coordinates: coordinates ? { id: coordinates.id } : null,
+            governor: governor ? { id: governor.id } : null,
+            area: Number(area),
+            capital,
+            metersAboveSeaLevel: Number(metersAboveSeaLevel),
+            carCode: Number(carCode),
+            agglomeration: Number(agglomeration),
+            climate,
+            user: { id: userId },
+        };
+        console.log(city)
         try {
-            await axios.delete(`/cities/${cityId}`, {
+            const response = await axios.post('/cities', city, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log('Deleted city:', cityId);
+            console.log('City created:', response.data);
         } catch (error) {
-            console.error('Error deleting city:', error);
+            console.error('Error creating city:', error);
         }
     };
 
     return (
         <div>
-            <h2>{action === 'create' ? 'Create City' : 'Edit City'}</h2>
+            <h2>Create City</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Name:</label>
                     <input
                         type="text"
-                        value={city.name}
-                        onChange={(e) => setCity({ ...city, name: e.target.value })}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         required
                     />
                 </div>
@@ -104,8 +90,8 @@ const CityForm = ({ cityId }) => {
                     <label>Population:</label>
                     <input
                         type="number"
-                        value={city.population}
-                        onChange={(e) => setCity({ ...city, population: e.target.value })}
+                        value={population}
+                        onChange={(e) => setPopulation(e.target.value)}
                         required
                     />
                 </div>
@@ -114,8 +100,8 @@ const CityForm = ({ cityId }) => {
                     <label>Area:</label>
                     <input
                         type="number"
-                        value={city.area}
-                        onChange={(e) => setCity({ ...city, area: e.target.value })}
+                        value={area}
+                        onChange={(e) => setArea(e.target.value)}
                         required
                     />
                 </div>
@@ -124,8 +110,8 @@ const CityForm = ({ cityId }) => {
                     <label>Capital:</label>
                     <input
                         type="checkbox"
-                        checked={city.capital}
-                        onChange={() => setCity({ ...city, capital: !city.capital })}
+                        checked={capital}
+                        onChange={() => setCapital(!capital)}
                     />
                 </div>
 
@@ -133,17 +119,17 @@ const CityForm = ({ cityId }) => {
                     <label>Meters Above Sea Level:</label>
                     <input
                         type="number"
-                        value={city.metersAboveSeaLevel}
-                        onChange={(e) => setCity({ ...city, metersAboveSeaLevel: e.target.value })}
+                        value={metersAboveSeaLevel}
+                        onChange={(e) => setMetersAboveSeaLevel(e.target.value)}
                     />
                 </div>
 
                 <div>
-                    <label>Car Code:</label>
+                    <label>Car Code (Optional):</label>
                     <input
                         type="number"
-                        value={city.carCode}
-                        onChange={(e) => setCity({ ...city, carCode: e.target.value })}
+                        value={carCode}
+                        onChange={(e) => setCarCode(e.target.value)}
                     />
                 </div>
 
@@ -151,8 +137,8 @@ const CityForm = ({ cityId }) => {
                     <label>Agglomeration:</label>
                     <input
                         type="number"
-                        value={city.agglomeration}
-                        onChange={(e) => setCity({ ...city, agglomeration: e.target.value })}
+                        value={agglomeration}
+                        onChange={(e) => setAgglomeration(e.target.value)}
                         required
                     />
                 </div>
@@ -160,8 +146,8 @@ const CityForm = ({ cityId }) => {
                 <div>
                     <label>Climate:</label>
                     <select
-                        value={city.climate}
-                        onChange={(e) => setCity({ ...city, climate: e.target.value })}
+                        value={climate}
+                        onChange={(e) => setClimate(e.target.value)}
                     >
                         <option value="RAIN_FOREST">Rain Forest</option>
                         <option value="MONSOON">Monsoon</option>
@@ -172,13 +158,13 @@ const CityForm = ({ cityId }) => {
                 <div>
                     <label>Coordinates:</label>
                     <select
-                        value={city.coordinates ? city.coordinates.id : ''}
-                        onChange={(e) => setCity({ ...city, coordinates: availableCoordinates.find(coord => coord.id === parseInt(e.target.value)) })}
+                        value={coordinates ? coordinates.id : ''}
+                        onChange={(e) => setCoordinates(availableCoordinates.find(coord => coord.id === parseInt(e.target.value)))}
                     >
                         <option value="">Select Coordinates</option>
                         {availableCoordinates.map(coord => (
                             <option key={coord.id} value={coord.id}>
-                                X: {coord.x}, Y: {coord.y}
+                                {`X: ${coord.x}, Y: ${coord.y}`}
                             </option>
                         ))}
                     </select>
@@ -187,26 +173,20 @@ const CityForm = ({ cityId }) => {
                 <div>
                     <label>Governor:</label>
                     <select
-                        value={city.governor ? city.governor.id : ''}
-                        onChange={(e) => setCity({ ...city, governor: availableGovernors.find(gov => gov.id === parseInt(e.target.value)) })}
+                        value={governor ? governor.id : ''}
+                        onChange={(e) => setGovernor(availableGovernors.find(gov => gov.id === parseInt(e.target.value)))}
                     >
                         <option value="">Select Governor</option>
                         {availableGovernors.map(gov => (
                             <option key={gov.id} value={gov.id}>
-                                {gov.height}
+                                {`${gov.height} `}
                             </option>
                         ))}
                     </select>
                 </div>
 
-                <button type="submit">{action === 'create' ? 'Create' : 'Update'} City</button>
+                <button type="submit">Create City</button>
             </form>
-
-            {action === 'update' && (
-                <button onClick={handleDelete} style={{ marginTop: '10px', backgroundColor: 'red' }}>
-                    Delete City
-                </button>
-            )}
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import { useAuth } from './AuthProvider';
 import { useEffect } from 'react';
 
-const useWebSocket = (url) => {
+const useWebSocket = (url, onMessage) => {
     const { token } = useAuth();
 
     useEffect(() => {
@@ -13,7 +13,12 @@ const useWebSocket = (url) => {
             };
 
             socket.onmessage = (event) => {
-                console.log("Message from server:", event.data);
+                const data = JSON.parse(event.data);
+                console.log("Message from server:", data);
+
+                if (onMessage) {
+                    onMessage(data);
+                }
             };
 
             socket.onclose = () => {
@@ -22,7 +27,7 @@ const useWebSocket = (url) => {
 
             return () => socket.close();
         }
-    }, [url, token]);
+    }, [url, token, onMessage]);
 };
 
 export default useWebSocket;

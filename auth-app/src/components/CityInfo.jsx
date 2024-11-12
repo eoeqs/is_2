@@ -33,17 +33,11 @@ const CityInfo = ({ match }) => {
             <h2>City Details</h2>
             {city ? (
                 <div>
-                    <h2>City Information</h2>
-                    <p><strong>Name:</strong> {city.name}</p>
-                    <p><strong>Population:</strong> {city.population}</p>
-                    <p><strong>Area:</strong> {city.area}</p>
-                    <p><strong>Capital:</strong> {city.capital ? "Yes" : "No"}</p>
-                    <p><strong>Meters Above Sea Level:</strong> {city.metersAboveSeaLevel}</p>
-                    <p><strong>Car Code:</strong> {city.carCode}</p>
-                    <p><strong>Agglomeration:</strong> {city.agglomeration}</p>
-                    <p><strong>Climate:</strong> {city.climate}</p>
-                    <p><strong>Coordinates:</strong> X: {city.coordinates.x}, Y: {city.coordinates.y}</p>
-                    <p><strong>Governor:</strong> {city.governor.height}</p>
+                    <p>Name: {city.name}</p>
+                    <p>Population: {city.population}</p>
+                    <p>Area: {city.area}</p>
+                    <p>Capital: {city.capital ? 'Yes' : 'No'}</p>
+                    <p>Climate: {city.climate}</p>
                 </div>
             ) : (
                 <p>City not found.</p>

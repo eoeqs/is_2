@@ -37,58 +37,67 @@ public class CityController {
         this.cityService = cityService;
     }
 
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            String username = userDetails.getUsername();
+            return userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        }
+        throw new UsernameNotFoundException("User not authenticated");
+    }
+
     @PostMapping
     public ResponseEntity<City> createCity(@RequestBody City city) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        logger.info("receiveed authentication {}", authentication);
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+        User user = getAuthenticatedUser();
+        logger.info("Creating city for user: {}", user.getUsername());
 
-            String username = userDetails.getUsername();
-            User user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            Coordinates coordinates = coordinatesRepository.findById(city.getCoordinates().getId())
-                    .orElseThrow(() -> new UsernameNotFoundException("Coordinates not found"));
-            city.setCoordinates(coordinates);
-            Human human = humanRepository.findById(city.getGovernor().getId())
-                    .orElseThrow(() -> new UsernameNotFoundException("Governor not found"));
-            city.setGovernor(human);
+        Coordinates coordinates = coordinatesRepository.findById(city.getCoordinates().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("Coordinates not found"));
+        city.setCoordinates(coordinates);
 
-            city.setUser(user);
-            logger.info("Received city data for creation: {}", city);
-            City createdCity = cityService.createCity(city);
-            logger.info("Created city: {}", createdCity);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdCity);
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        Human human = humanRepository.findById(city.getGovernor().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("Governor not found"));
+        city.setGovernor(human);
+
+        city.setUser(user);
+        City createdCity = cityService.createCity(city);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCity);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Optional<City>> getCityById(@PathVariable Long id) {
         logger.info("Fetching city with ID: {}", id);
+        User user = getAuthenticatedUser();
+
         Optional<City> city = cityService.getCityById(id);
+
         return ResponseEntity.ok(city);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<City> updateCity(@PathVariable Long id, @RequestBody City city) {
-        logger.info("Updating city with ID: {}, Data: {}", id, city);
+        User user = getAuthenticatedUser();
+        logger.info("Updating city with ID: {} for user: {}", id, user.getUsername());
+
         City updatedCity = cityService.updateCity(id, city);
-        logger.info("Updated city: {}", updatedCity);
         return ResponseEntity.ok(updatedCity);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCity(@PathVariable Long id) {
-        logger.info("Deleting city with ID: {}", id);
+        User user = getAuthenticatedUser();
+        logger.info("Deleting city with ID: {} for user: {}", id, user.getUsername());
+
         cityService.deleteCity(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     public ResponseEntity<List<City>> getAllCities() {
-        logger.info("Fetching all cities");
+        User user = getAuthenticatedUser();
+        logger.info("Fetching all cities for user: {}", user.getUsername());
+
         List<City> cities = cityService.getAllCities();
         return ResponseEntity.ok(cities);
     }

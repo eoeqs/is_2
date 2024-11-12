@@ -22,7 +22,7 @@ public class City {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "coordinates_id", nullable = false)
     private Coordinates coordinates;
 
@@ -65,7 +65,7 @@ public class City {
     @Column(nullable = false)
     private Climate climate;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "governor_id")
     @NotNull(message = "Governor cannot be null")
     private Human governor;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../AuthProvider';  // Импортируем useAuth
+import { useAuth } from '../AuthProvider';
 
 const CityActionSelector = () => {
     const { token } = useAuth();  // Получаем токен из контекста
@@ -11,10 +11,9 @@ const CityActionSelector = () => {
     useEffect(() => {
         const fetchCities = async () => {
             try {
-                // Передаем токен в заголовках запроса
                 const response = await axios.get('/cities', {
                     headers: {
-                        Authorization: `Bearer ${token}`,  // Добавляем токен
+                        Authorization: `Bearer ${token}`,  // Передаем токен
                     },
                 });
                 setCities(response.data);  // Заполняем список городов
@@ -23,9 +22,7 @@ const CityActionSelector = () => {
             }
         };
 
-        if (token) {
-            fetchCities();  // Загружаем города, если есть токен
-        }
+        fetchCities();
     }, [token]);
 
     const handleCityChange = (e) => {
@@ -56,6 +53,11 @@ const CityActionSelector = () => {
                 </select>
                 <Link to={`/cities/info/${selectedCityId}`}>
                     <button disabled={!selectedCityId}>Show City Info</button>
+                </Link>
+            </div>
+            <div>
+                <Link to="/cities/delete">
+                    <button>Delete an Existing City</button>
                 </Link>
             </div>
         </div>

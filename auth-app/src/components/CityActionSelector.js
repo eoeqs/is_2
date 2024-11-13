@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {Link, useNavigate} from 'react-router-dom';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import ReactPaginate from 'react-paginate';
 import ClimateFilter from './ClimateFilter';
@@ -9,7 +9,9 @@ import AgglomerationFilter from './AgglomerationFilter';
 const CityActionSelector = () => {
     const navigate = useNavigate();
 
-    const { token, logout } = useAuth();
+    const { token, logout, userId } = useAuth();
+    const { id } = useParams();
+
     const [cities, setCities] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [citiesPerPage] = useState(10);
@@ -100,7 +102,6 @@ const CityActionSelector = () => {
         setShowUniqueAgglomerations(!showUniqueAgglomerations);
     };
 
-    // Функция для запроса расстояния до города с наибольшей площадью
     const handleFindDistance = async () => {
         setLoadingDistance(true);
         setDistance(null); // Сбросить предыдущее расстояние
@@ -220,8 +221,16 @@ const CityActionSelector = () => {
                         <td>{city.carCode !== null ? city.carCode : 'N/A'}</td>
                         <td>{city.agglomeration}</td>
                         <td>
-                            <Link to={`/cities/info/${city.id}`}>
-                                <button>View Info</button>
+                            <Link to={`/cities/update/${city.id}`}>
+                                <button
+                                    disabled={userId !== city.userId}
+                                    style={{
+                                        backgroundColor: userId !== city.userId ? '#d3d3d3' : '',
+                                        cursor: userId !== city.userId ? 'not-allowed' : 'pointer',
+                                    }}
+                                >
+                                    Edit
+                                </button>
                             </Link>
                         </td>
                     </tr>

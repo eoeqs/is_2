@@ -43,6 +43,7 @@ const CityActionSelector = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
+                console.log(response)
                 if (Array.isArray(response.data)) {
                     setCities(response.data);
                 } else {
@@ -250,17 +251,28 @@ const CityActionSelector = () => {
                         <td>{city.carCode !== null ? city.carCode : 'N/A'}</td>
                         <td>{city.agglomeration}</td>
                         <td>
-                            <Link to={`/cities/update/${city.id}`}>
-                                <button
-                                    disabled={userId !== city.userId}
-                                    style={{
-                                        backgroundColor: userId !== city.userId ? '#d3d3d3' : '',
-                                        cursor: userId !== city.userId ? 'not-allowed' : 'pointer',
-                                    }}
-                                >
-                                    Edit
-                                </button>
-                            </Link>
+                            {primaryRole === 'ADMIN' ? (
+                                <div>
+                                    <Link to={`/cities/update/${city.id}`}>
+                                            Edit
+                                    </Link>
+                                </div>
+                            ) : primaryRole === 'USER' ? (
+                                <div>
+                                    <Link to={`/cities/update/${city.id}`}>
+                                        <button
+                                            disabled={userId !== city.user.id}
+                                            style={{
+                                                backgroundColor: userId !== city.user.id ? '#d3d3d3' : '',
+                                                cursor: userId !== city.user.id ? 'not-allowed' : 'pointer',
+                                            }}
+                                        >
+                                            Edit
+                                        </button>
+                                    </Link>
+                                </div>
+                            ) : null}
+
                         </td>
                     </tr>
                 ))}

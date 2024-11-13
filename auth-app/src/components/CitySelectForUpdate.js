@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../AuthProvider';
 
 const CitySelectForUpdate = () => {
-    const { token } = useAuth(); // Получаем токен из контекста аутентификации
+    const { token } = useAuth();
     const [cities, setCities] = useState([]);
     const [selectedCityId, setSelectedCityId] = useState(null);
     const navigate = useNavigate();
@@ -13,7 +13,7 @@ const CitySelectForUpdate = () => {
         const fetchCities = async () => {
             try {
                 const response = await axios.get('/cities/editable', {
-                    headers: { Authorization: `Bearer ${token}` } // Передаем токен в заголовке
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 setCities(response.data);
             } catch (error) {
@@ -21,7 +21,7 @@ const CitySelectForUpdate = () => {
             }
         };
 
-        if (token) { // Запускаем запрос только при наличии токена
+        if (token) {
             fetchCities();
         }
     }, [token]);

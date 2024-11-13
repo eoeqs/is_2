@@ -55,7 +55,6 @@ const CityForm = () => {
         }
 
         try {
-            // Создание объекта координат, если выбран ручной ввод
             let coordinatesId = coordinates ? coordinates.id : null;
             if (useCustomCoordinates) {
                 const newCoordinates = { x: Number(customX), y: Number(customY) };
@@ -65,7 +64,6 @@ const CityForm = () => {
                 coordinatesId = coordinatesResponse.data.id;
             }
 
-            // Создание объекта губернатора, если выбран ручной ввод
             let governorId = governor ? governor.id : null;
             if (useCustomGovernor) {
                 const newGovernor = { height: Number(customHeight) };
@@ -75,7 +73,6 @@ const CityForm = () => {
                 governorId = governorResponse.data.id;
             }
 
-            // Создание города с использованием созданных координат и губернатора
             const city = {
                 name,
                 population: Number(population),
@@ -148,7 +145,6 @@ const CityForm = () => {
                     </select>
                 </div>
 
-                {/* Coordinates Section */}
                 <div>
                     <label>Coordinates:</label>
                     <div>
@@ -180,7 +176,6 @@ const CityForm = () => {
                     )}
                 </div>
 
-                {/* Governor Section */}
                 <div>
                     <label>Governor:</label>
                     <div>

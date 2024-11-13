@@ -4,7 +4,7 @@ import { useAuth } from '../AuthProvider';
 import { useNavigate } from 'react-router-dom';
 
 const CityDelete = () => {
-    const { token } = useAuth();  // Получаем токен из контекста
+    const { token } = useAuth();
     const [cities, setCities] = useState([]);
     const [selectedCityId, setSelectedCityId] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);

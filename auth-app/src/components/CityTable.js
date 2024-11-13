@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from "../AuthProvider";
 import CityEditDialog from "./CityEditDialog";
-import useWebSocket from '../hooks/useWebSocket';
+import useWebSocket from "../webSocket";
 
 const CityTable = () => {
     const { token, userId, isAdmin } = useAuth();

@@ -1,7 +1,9 @@
 package eoeqs.service;
 
 import eoeqs.model.Role;
+import eoeqs.model.RoleChangeRequest;
 import eoeqs.model.User;
+import eoeqs.repository.RoleChangeRequestRepository;
 import eoeqs.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,12 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoleChangeRequestRepository roleChangeRequestRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleChangeRequestRepository roleChangeRequestRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleChangeRequestRepository = roleChangeRequestRepository;
     }
 
     public User registerUser(String username, String password) {
@@ -65,5 +69,42 @@ public class UserService {
     }
     public List<User> findAllUsers() {
         return userRepository.findAll();
+    }
+
+    public RoleChangeRequest requestRoleChange(Long userId, Role requestedRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+
+        RoleChangeRequest roleChangeRequest = new RoleChangeRequest();
+        roleChangeRequest.setUser(user);
+        roleChangeRequest.setRequestedRole(requestedRole);
+        roleChangeRequest.setStatus(RoleChangeRequest.RequestStatus.PENDING);
+
+        return roleChangeRequestRepository.save(roleChangeRequest);
+    }
+
+    public List<RoleChangeRequest> getRoleChangeRequests() {
+        return roleChangeRequestRepository.findAllByStatus(RoleChangeRequest.RequestStatus.PENDING);
+    }
+
+    public void approveRoleChange(Long requestId) {
+        RoleChangeRequest request = roleChangeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Request not found with id: " + requestId));
+
+        User user = request.getUser();
+        user.getRoles().clear();
+        user.getRoles().add(request.getRequestedRole());
+        userRepository.save(user);
+
+        request.setStatus(RoleChangeRequest.RequestStatus.APPROVED);
+        roleChangeRequestRepository.save(request);
+    }
+
+    public void rejectRoleChange(Long requestId) {
+        RoleChangeRequest request = roleChangeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Request not found with id: " + requestId));
+
+        request.setStatus(RoleChangeRequest.RequestStatus.REJECTED);
+        roleChangeRequestRepository.save(request);
     }
 }

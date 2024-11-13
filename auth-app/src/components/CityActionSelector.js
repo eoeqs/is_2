@@ -9,9 +9,10 @@ import AgglomerationFilter from './AgglomerationFilter';
 const CityActionSelector = () => {
     const navigate = useNavigate();
 
-    const { token, logout, userId } = useAuth();
+    const { token, logout } = useAuth();
     const { id } = useParams();
-
+    const [userId, setUserId] = useState(null);
+    const [primaryRole, setPrimaryRole] = useState(null);
     const [cities, setCities] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [citiesPerPage] = useState(10);
@@ -20,10 +21,22 @@ const CityActionSelector = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedAgglomeration, setSelectedAgglomeration] = useState('');
     const [showUniqueAgglomerations, setShowUniqueAgglomerations] = useState(false);
-    const [distance, setDistance] = useState(null); // Состояние для хранения расстояния
-    const [loadingDistance, setLoadingDistance] = useState(false); // Состояние для отслеживания загрузки
+    const [distance, setDistance] = useState(null);
+    const [loadingDistance, setLoadingDistance] = useState(false);
 
     useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const response = await axios.get(`/api/users/current-user-info`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setUserId(response.data.id);
+                setPrimaryRole(response.data.role);
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+            }
+        }
+
         const fetchCities = async () => {
             try {
                 const response = await axios.get('/cities', {
@@ -40,8 +53,11 @@ const CityActionSelector = () => {
             }
         };
 
-        fetchCities();
-    }, [token]);
+        if (token) {
+            fetchUserInfo();
+            fetchCities();
+        }
+        }, [id,token]);
 
     const indexOfLastCity = (currentPage + 1) * citiesPerPage;
     const indexOfFirstCity = indexOfLastCity - citiesPerPage;
@@ -104,13 +120,13 @@ const CityActionSelector = () => {
 
     const handleFindDistance = async () => {
         setLoadingDistance(true);
-        setDistance(null); // Сбросить предыдущее расстояние
+        setDistance(null);
 
         try {
             const response = await axios.get('/cities/distance-to-largest-city', {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setDistance(response.data); // Сохраняем расстояние
+            setDistance(response.data);
         } catch (error) {
             console.error('Error fetching distance:', error);
         } finally {
@@ -121,6 +137,19 @@ const CityActionSelector = () => {
     return (
         <div>
             <h2>What would you like to do?</h2>
+            {primaryRole === 'ADMIN' ? (
+            <div>
+                <Link to="/role-requests">
+                    <button>Go to Role Requests</button>
+                </Link>
+            </div>
+        ) : primaryRole === 'USER' ? (
+            <div>
+                <Link to="/request-role-change">
+                    <button>Request Role Change</button>
+                </Link>
+            </div>
+        ) : null}
             <div>
                 <Link to="/cities/create">
                     <button>Create a New City</button>

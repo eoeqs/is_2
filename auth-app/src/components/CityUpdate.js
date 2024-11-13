@@ -16,6 +16,7 @@ const CityUpdate = () => {
                 const response = await axios.get(`/cities/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                console.log(response.data)
                 console.log(response)
                 setCityData(response.data);
                 setUpdatedCityData(response.data);

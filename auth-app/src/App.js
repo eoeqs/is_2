@@ -4,12 +4,13 @@ import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
 import CityForm from './components/CityForm';
-import AdminPanel from './components/AdminPanel';
 import CityActionSelector from './components/CityActionSelector';
 import CityUpdate from './components/CityUpdate';
 import CitySelectForUpdate from './components/CitySelectForUpdate';
 import CityDelete from './components/CityDelete';
-import CityInfo from "./components/CityInfo";  // Импортируем новый компонент
+import CityInfo from "./components/CityInfo";
+import RoleChangeRequest from "./components/RoleChangeRequest";
+import RoleRequestManager from "./components/RoleRequestManager";  // Импортируем новый компонент
 
 const App = () => {
     const [user, setUser] = useState({ roles: [] });
@@ -38,10 +39,8 @@ const App = () => {
                 <Route path="/cities/update" element={<CitySelectForUpdate />} />
                 <Route path="/cities/delete" element={<CityDelete />} />
                 <Route path="/cities/info/:id" element={<CityInfo/>} />
-                <Route
-                    path="/admin"
-                    element={user && user.roles.includes('ADMIN') ? <AdminPanel /> : <Navigate to="/" />}
-                />
+                <Route path="/request-role-change" element={<RoleChangeRequest />} />
+                <Route path="/role-requests" element={<RoleRequestManager />} />
             </Routes>
         </Router>
     );

@@ -14,20 +14,19 @@ const CityDelete = () => {
     useEffect(() => {
         const fetchCities = async () => {
             try {
-                // Передаем токен в заголовках запроса
-                const response = await axios.get('/cities', {
+                const response = await axios.get('/cities/editable', {
                     headers: {
-                        Authorization: `Bearer ${token}`,  // Добавляем токен
+                        Authorization: `Bearer ${token}`,
                     },
                 });
-                setCities(response.data);  // Заполняем список городов
+                setCities(response.data);
             } catch (error) {
                 console.error('Error fetching cities:', error);
             }
         };
 
         if (token) {
-            fetchCities();  // Загружаем города, если есть токен
+            fetchCities();
         }
     }, [token]);
 
@@ -38,21 +37,21 @@ const CityDelete = () => {
     const handleDeleteCity = async () => {
         if (selectedCityId) {
             try {
-                setIsDeleting(true);  // Отображаем индикатор загрузки
+                setIsDeleting(true);
                 await axios.delete(`/cities/${selectedCityId}`, {
                     headers: {
-                        Authorization: `Bearer ${token}`,  // Передаем токен
+                        Authorization: `Bearer ${token}`,
                     },
                 });
                 setMessage('City successfully deleted!');
                 setTimeout(() => {
-                    navigate('/city-actions'); // Перенаправляем на страницу действий
-                }, 3000);  // Перенаправляем после удаления
+                    navigate('/city-actions');
+                }, 3000);
             } catch (error) {
                 setMessage('Error deleting city');
                 console.error('Error deleting city:', error);
             } finally {
-                setIsDeleting(false);  // Скрываем индикатор загрузки
+                setIsDeleting(false);
             }
         }
     };

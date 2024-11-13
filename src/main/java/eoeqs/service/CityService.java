@@ -111,4 +111,8 @@ public class CityService {
 
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
+
+    public List<City> getCitiesByUserId(Long userId) {
+        return cityRepository.findByUserId(userId);
+    }
 }

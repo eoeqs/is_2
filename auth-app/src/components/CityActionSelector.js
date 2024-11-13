@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import ReactPaginate from 'react-paginate';
 import ClimateFilter from './ClimateFilter';
 import AgglomerationFilter from './AgglomerationFilter';
 
 const CityActionSelector = () => {
-    const { token } = useAuth();
+    const navigate = useNavigate();
+
+    const { token, logout } = useAuth();
     const [cities, setCities] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [citiesPerPage] = useState(10);
@@ -90,7 +92,10 @@ const CityActionSelector = () => {
     const handleAgglomerationFilterChange = (selectedAgglomeration) => {
         setSelectedAgglomeration(selectedAgglomeration);
     };
-
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
     const toggleUniqueAgglomerations = () => {
         setShowUniqueAgglomerations(!showUniqueAgglomerations);
     };
@@ -146,16 +151,7 @@ const CityActionSelector = () => {
 
             <ClimateFilter/>
 
-            <div>
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={showUniqueAgglomerations}
-                        onChange={() => setShowUniqueAgglomerations(!showUniqueAgglomerations)}
-                    />
-                    Show Unique Agglomerations
-                </label>
-            </div>
+
             {showUniqueAgglomerations && <AgglomerationFilter/>}
 
             <div>
@@ -251,7 +247,9 @@ const CityActionSelector = () => {
                 nextClassName="next-item"
             />
 
-
+            <div>
+                <button onClick={handleLogout}>Logout</button>
+            </div>
         </div>
     );
 };

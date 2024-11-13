@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cities")
@@ -78,6 +77,13 @@ public class CityController {
         User user = getAuthenticatedUser();
         logger.info("Updating city with ID: {} for user: {}", id, user.getUsername());
 
+        City existingCity = cityService.getCityById(id)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+
+        if (!canModifyCity(user, existingCity)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         City updatedCity = cityService.updateCity(id, city);
         return ResponseEntity.ok(updatedCity);
     }
@@ -86,7 +92,11 @@ public class CityController {
     public ResponseEntity<Void> deleteCity(@PathVariable Long id) {
         User user = getAuthenticatedUser();
         logger.info("Deleting city with ID: {} for user: {}", id, user.getUsername());
-
+        City cityToDelete = cityService.getCityById(id)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+        if (!canModifyCity(user, cityToDelete)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         cityService.deleteCity(id);
         return ResponseEntity.noContent().build();
     }
@@ -122,6 +132,7 @@ public class CityController {
             return ResponseEntity.ok(filteredCities);
         }
     }
+
     @GetMapping("/unique-agglomerations")
     public ResponseEntity<List<Long>> getUniqueAgglomerations(@RequestHeader("Authorization") String token) {
         User user = getAuthenticatedUser();
@@ -147,5 +158,32 @@ public class CityController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
         }
+    }
+
+    private boolean isAdmin(User user) {
+        return user.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ADMIN"));
+    }
+
+
+    private boolean canModifyCity(User user, City city) {
+        return isAdmin(user) || city.getUser().getId().equals(user.getId());
+    }
+
+    @GetMapping("/editable")
+    public ResponseEntity<List<City>> getAllEditableCities() {
+        User user = getAuthenticatedUser();
+        logger.info("user: {}", user);
+
+        List<City> cities;
+        if (isAdmin(user)) {
+            cities = cityService.getAllCities();
+            logger.info("tut");
+        } else {
+            cities = cityService.getCitiesByUserId(user.getId());
+            logger.info("ne tut");
+        }
+
+        return ResponseEntity.ok(cities);
     }
 }

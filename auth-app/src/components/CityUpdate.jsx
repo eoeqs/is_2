@@ -8,7 +8,7 @@ const CityUpdate = () => {
     const { token, userId } = useAuth();
     const [cityData, setCityData] = useState(null);
     const [updatedCityData, setUpdatedCityData] = useState(null);
-    const [climateOptions] = useState(["RAIN_FOREST", "MONSOON", "HUMIDCONTINENTAL"]); // Соответствующие значения перечисления
+    const [climateOptions] = useState(["RAIN_FOREST", "MONSOON", "HUMIDCONTINENTAL"]);
 
     useEffect(() => {
         const fetchCityData = async () => {
@@ -16,6 +16,7 @@ const CityUpdate = () => {
                 const response = await axios.get(`/cities/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                console.log(response)
                 setCityData(response.data);
                 setUpdatedCityData(response.data);
             } catch (error) {
@@ -103,7 +104,7 @@ const CityUpdate = () => {
                                         >
                                             {climateOptions.map((climate) => (
                                                 <option key={climate} value={climate}>
-                                                    {climate.replace(/_/g, ' ')} {/* Подставим значение для пользователя */}
+                                                    {climate.replace(/_/g, ' ')}
                                                 </option>
                                             ))}
                                         </select>

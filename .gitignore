@@ -14,6 +14,7 @@ build/
 *.ipr
 out/
 !**/src/main/**/out/
+!**/src/main/**/resourses/application.yml
 !**/src/test/**/out/
 
 ### Eclipse ###

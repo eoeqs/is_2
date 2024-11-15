@@ -281,10 +281,6 @@ const CityActionSelector = () => {
                 </tbody>
             </table>
 
-            <div>
-                <span>PageCount: </span>
-                <span>{Math.ceil(cities.length / citiesPerPage)}</span>
-            </div>
 
             <ReactPaginate
                 previousLabel={<button className="pagination-button">Previous</button>}

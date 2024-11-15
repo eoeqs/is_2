@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import {useAuth} from "../AuthProvider";
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error] = useState('');
     const navigate = useNavigate();
+    const { setToken } = useAuth();
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -16,9 +19,15 @@ const Register = () => {
                 password: password
             };
             console.log(user)
-            const response = await axios.post('http://localhost:8080/api/users/register', user);
-            console.log('Server response:', response);
-            navigate('/city-actions');
+            const response = await axios.post('http://localhost:8080/api/users/register', user);const { token } = response.data;
+
+            if (token) {
+                setToken(token);
+
+                navigate('/city-actions');
+            } else {
+                console.error('No token received');
+            }
         } catch (error) {
             console.error('Registration error:', error.response ? error.response.data : error);
         }

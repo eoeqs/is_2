@@ -254,7 +254,9 @@ const CityActionSelector = () => {
                             {primaryRole === 'ADMIN' ? (
                                 <div>
                                     <Link to={`/cities/update/${city.id}`}>
+                                        <button>
                                             Edit
+                                        </button>
                                     </Link>
                                 </div>
                             ) : primaryRole === 'USER' ? (

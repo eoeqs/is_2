@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
 import Home from './components/Home';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -10,10 +10,11 @@ import CitySelectForUpdate from './components/CitySelectForUpdate';
 import CityDelete from './components/CityDelete';
 import CityInfo from "./components/CityInfo";
 import RoleChangeRequest from "./components/RoleChangeRequest";
-import RoleRequestManager from "./components/RoleRequestManager";  // Импортируем новый компонент
+import RoleRequestManager from "./components/RoleRequestManager";
+import ProtectedRoute from "./ProtectedRoute";  // Импортируем новый компонент
 
 const App = () => {
-    const [user, setUser] = useState({ roles: [] });
+    const [user, setUser] = useState({roles: []});
 
     useEffect(() => {
         const loggedInUser = JSON.parse(localStorage.getItem('user'));
@@ -30,17 +31,25 @@ const App = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/city-actions" element={<CityActionSelector />} />
-                <Route path="/cities/create" element={<CityForm />} />
-                <Route path="/cities/update/:id" element={<CityUpdate />} />
-                <Route path="/cities/update" element={<CitySelectForUpdate />} />
-                <Route path="/cities/delete" element={<CityDelete />} />
-                <Route path="/cities/info/:id" element={<CityInfo/>} />
-                <Route path="/request-role-change" element={<RoleChangeRequest />} />
-                <Route path="/role-requests" element={<RoleRequestManager />} />
+                <Route path="/" element={<Home/>}/>
+                <Route path="/login" element={<Login/>}/>
+                <Route path="/register" element={<Register/>}/>
+                <Route path="/city-actions" element={<ProtectedRoute>
+                    <CityActionSelector/> </ProtectedRoute>}/>
+                <Route path="/cities/create" element={<ProtectedRoute>
+                    <CityForm/></ProtectedRoute>}/>
+                <Route path="/cities/update/:id" element={<ProtectedRoute>
+                    <CityUpdate/></ProtectedRoute>}/>
+                <Route path="/cities/update" element={<ProtectedRoute>
+                    <CitySelectForUpdate/></ProtectedRoute>}/>
+                <Route path="/cities/delete" element={<ProtectedRoute>
+                    <CityDelete/></ProtectedRoute>}/>
+                <Route path="/cities/info/:id" element={<ProtectedRoute>
+                    <CityInfo/></ProtectedRoute>}/>
+                <Route path="/request-role-change" element={<ProtectedRoute>
+                    <RoleChangeRequest/></ProtectedRoute>}/>
+                <Route path="/role-requests" element={<ProtectedRoute>
+                    <RoleRequestManager/></ProtectedRoute>}/>
             </Routes>
         </Router>
     );

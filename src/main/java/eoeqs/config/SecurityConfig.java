@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/city-actions").hasAnyAuthority("USER", "ADMIN")
                         .requestMatchers("/user/**", "/cities/**").hasAnyAuthority("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )

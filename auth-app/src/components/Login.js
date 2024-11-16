@@ -10,6 +10,7 @@ const Login = () => {
     const navigate = useNavigate();
     const { token, setToken } = useAuth();
 
+
     useEffect(() => {
         if (token) {
             console.log("token in login (after update)", token);
@@ -19,6 +20,7 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
             await loginUser(username, password, setToken);
         } catch (err) {
@@ -54,6 +56,7 @@ const Login = () => {
                 </div>
                 <button type="submit">Login</button>
             </form>
+
         </div>
     );
 };

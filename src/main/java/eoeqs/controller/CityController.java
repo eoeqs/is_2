@@ -1,5 +1,6 @@
 package eoeqs.controller;
 
+import eoeqs.exception.*;
 import eoeqs.model.*;
 import eoeqs.repository.CoordinatesRepository;
 import eoeqs.repository.HumanRepository;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,13 +27,15 @@ public class CityController {
     private static final Logger logger = LoggerFactory.getLogger(CityController.class);
     private final UserRepository userRepository;
     private final CityService cityService;
+    private final SimpMessagingTemplate messagingTemplate;
 
 
-    public CityController(CoordinatesRepository coordinatesRepository, HumanRepository humanRepository, UserRepository userRepository, CityService cityService) {
+    public CityController(CoordinatesRepository coordinatesRepository, HumanRepository humanRepository, UserRepository userRepository, CityService cityService, SimpMessagingTemplate messagingTemplate) {
         this.coordinatesRepository = coordinatesRepository;
         this.humanRepository = humanRepository;
         this.userRepository = userRepository;
         this.cityService = cityService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     private User getAuthenticatedUser() {
@@ -50,16 +54,22 @@ public class CityController {
         User user = getAuthenticatedUser();
         logger.info("Creating city for user: {}", user.getUsername());
 
+
         Coordinates coordinates = coordinatesRepository.findById(city.getCoordinates().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("Coordinates not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Coordinates not found"));
         city.setCoordinates(coordinates);
 
         Human human = humanRepository.findById(city.getGovernor().getId())
-                .orElseThrow(() -> new UsernameNotFoundException("Governor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Governor not found"));
         city.setGovernor(human);
 
+        if (!isAdmin(user)) {
+            throw new UnauthorizedAccessException("User is not authorized to create cities.");
+        }
         city.setUser(user);
         City createdCity = cityService.createCity(city);
+        messagingTemplate.convertAndSend("/topic/cities", createdCity);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCity);
     }
 
@@ -82,10 +92,12 @@ public class CityController {
                 .orElseThrow(() -> new RuntimeException("City not found"));
 
         if (!canModifyCity(user, existingCity)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new ForbiddenException("You do not have permission to modify this city.");
         }
 
         City updatedCity = cityService.updateCity(id, city);
+        messagingTemplate.convertAndSend("/topic/cities", updatedCity);
+
         return ResponseEntity.ok(updatedCity);
     }
 
@@ -94,11 +106,14 @@ public class CityController {
         User user = getAuthenticatedUser();
         logger.info("Deleting city with ID: {} for user: {}", id, user.getUsername());
         City cityToDelete = cityService.getCityById(id)
-                .orElseThrow(() -> new RuntimeException("City not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("City not found"));
+
         if (!canModifyCity(user, cityToDelete)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new ForbiddenException("You do not have permission to delete this city.");
         }
         cityService.deleteCity(id);
+        messagingTemplate.convertAndSend("/topic/cities", Map.of("action", "delete", "id", id));
+
         return ResponseEntity.noContent().build();
     }
 
@@ -127,8 +142,9 @@ public class CityController {
             } else if ("more".equals(filterType)) {
                 filteredCities = cityService.getCitiesWithClimateGreaterThan(climate);
             } else {
-                return ResponseEntity.badRequest().body(null);
+                throw new BadRequestException("Invalid filter type. Use 'less' or 'more'.");
             }
+
 
             return ResponseEntity.ok(filteredCities);
         }
@@ -143,7 +159,7 @@ public class CityController {
             List<Long> uniqueAgglomerations = cityService.getUniqueAgglomerations();
             return ResponseEntity.ok(uniqueAgglomerations);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new InternalServerErrorException("Something went wrong, try again later.");
         }
     }
 
@@ -156,7 +172,7 @@ public class CityController {
             double distance = cityService.calculateDistanceToLargestCity();
             return ResponseEntity.ok(distance);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new InternalServerErrorException("Something went wrong, try again later.");
 
         }
     }
@@ -174,10 +190,12 @@ public class CityController {
                 .orElseThrow(() -> new RuntimeException("Target city for reassignment not found"));
 
         if (!canModifyCity(user, cityToDelete) || !canModifyCity(user, reassignToCity)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new ForbiddenException("You do not have access to delete city.");
         }
 
         cityService.deleteCityWithReassignment(id, reassignToCity);
+        messagingTemplate.convertAndSend("/topic/cities", Map.of("action", "delete", "id", id));
+
         return ResponseEntity.noContent().build();
     }
 

@@ -11,6 +11,7 @@ const CityDelete = () => {
         const navigate = useNavigate();
         const [message, setMessage] = useState('');
         const [reassignCityId, setReassignCityId] = useState('');
+        const [error, setError] = useState('');
 
         useEffect(() => {
             const fetchCities = async () => {
@@ -22,6 +23,7 @@ const CityDelete = () => {
                     });
                     setCities(response.data);
                 } catch (error) {
+                    setError('Error fetching cities');
                     console.error('Error fetching cities:', error);
                 }
             };

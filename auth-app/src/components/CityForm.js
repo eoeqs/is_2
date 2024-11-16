@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
-import { useAuth } from "../AuthProvider";
-import { useNavigate } from "react-router-dom";
+import {useAuth} from "../AuthProvider";
+import {useNavigate} from "react-router-dom";
 
 const CityForm = () => {
-    const { token, userId } = useAuth();
+    const {token, userId} = useAuth();
     const [name, setName] = useState('');
     const [population, setPopulation] = useState('');
     const [area, setArea] = useState('');
@@ -24,19 +24,21 @@ const CityForm = () => {
     const [governor, setGovernor] = useState(null);
     const [customHeight, setCustomHeight] = useState('');
     const [availableGovernors, setAvailableGovernors] = useState([]);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const coordinatesResponse = await axios.get('/coordinates', {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
                 const governorsResponse = await axios.get('/humans', {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
                 setAvailableCoordinates(coordinatesResponse.data);
                 setAvailableGovernors(governorsResponse.data);
             } catch (error) {
+                setError('Error fetching available coordinates or governors');
                 console.error('Error fetching available coordinates or governors:', error);
             }
         };
@@ -50,25 +52,25 @@ const CityForm = () => {
         e.preventDefault();
 
         if (population <= 0 || area <= 0 || !name.trim()) {
-            alert('Please ensure all fields are filled correctly.');
+            setError('Please ensure all fields are filled correctly.');
             return;
         }
 
         try {
             let coordinatesId = coordinates ? coordinates.id : null;
             if (useCustomCoordinates) {
-                const newCoordinates = { x: Number(customX), y: Number(customY) };
+                const newCoordinates = {x: Number(customX), y: Number(customY)};
                 const coordinatesResponse = await axios.post('/coordinates', newCoordinates, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
                 coordinatesId = coordinatesResponse.data.id;
             }
 
             let governorId = governor ? governor.id : null;
             if (useCustomGovernor) {
-                const newGovernor = { height: Number(customHeight) };
+                const newGovernor = {height: Number(customHeight)};
                 const governorResponse = await axios.post('/humans', newGovernor, {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: {Authorization: `Bearer ${token}`},
                 });
                 governorId = governorResponse.data.id;
             }
@@ -76,23 +78,24 @@ const CityForm = () => {
             const city = {
                 name,
                 population: Number(population),
-                coordinates: coordinatesId ? { id: coordinatesId } : null,
-                governor: governorId ? { id: governorId } : null,
+                coordinates: coordinatesId ? {id: coordinatesId} : null,
+                governor: governorId ? {id: governorId} : null,
                 area: Number(area),
                 capital,
                 metersAboveSeaLevel: Number(metersAboveSeaLevel),
                 carCode: Number(carCode),
                 agglomeration: Number(agglomeration),
                 climate,
-                user: { id: userId },
+                user: {id: userId},
             };
 
             const response = await axios.post('/cities', city, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             console.log('City created:', response.data);
             navigate('/city-actions');
         } catch (error) {
+            setError('Error creating city');
             console.error('Error creating city:', error);
         }
     };
@@ -103,37 +106,39 @@ const CityForm = () => {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Name:</label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required/>
                 </div>
 
                 <div>
                     <label>Population:</label>
-                    <input type="number" value={population} onChange={(e) => setPopulation(e.target.value)} required />
+                    <input type="number" value={population} onChange={(e) => setPopulation(e.target.value)} required/>
                 </div>
 
                 <div>
                     <label>Area:</label>
-                    <input type="number" value={area} onChange={(e) => setArea(e.target.value)} required />
+                    <input type="number" value={area} onChange={(e) => setArea(e.target.value)} required/>
                 </div>
 
                 <div>
                     <label>Capital:</label>
-                    <input type="checkbox" checked={capital} onChange={() => setCapital(!capital)} />
+                    <input type="checkbox" checked={capital} onChange={() => setCapital(!capital)}/>
                 </div>
 
                 <div>
                     <label>Meters Above Sea Level:</label>
-                    <input type="number" value={metersAboveSeaLevel} onChange={(e) => setMetersAboveSeaLevel(e.target.value)} />
+                    <input type="number" value={metersAboveSeaLevel}
+                           onChange={(e) => setMetersAboveSeaLevel(e.target.value)}/>
                 </div>
 
                 <div>
                     <label>Car Code (Optional):</label>
-                    <input type="number" value={carCode} onChange={(e) => setCarCode(e.target.value)} />
+                    <input type="number" value={carCode} onChange={(e) => setCarCode(e.target.value)}/>
                 </div>
 
                 <div>
                     <label>Agglomeration:</label>
-                    <input type="number" value={agglomeration} onChange={(e) => setAgglomeration(e.target.value)} required />
+                    <input type="number" value={agglomeration} onChange={(e) => setAgglomeration(e.target.value)}
+                           required/>
                 </div>
 
                 <div>
@@ -149,23 +154,26 @@ const CityForm = () => {
                     <label>Coordinates:</label>
                     <div>
                         <label>
-                            <input type="radio" checked={!useCustomCoordinates} onChange={() => setUseCustomCoordinates(false)} />
+                            <input type="radio" checked={!useCustomCoordinates}
+                                   onChange={() => setUseCustomCoordinates(false)}/>
                             Select Coordinates
                         </label>
                         <label>
-                            <input type="radio" checked={useCustomCoordinates} onChange={() => setUseCustomCoordinates(true)} />
+                            <input type="radio" checked={useCustomCoordinates}
+                                   onChange={() => setUseCustomCoordinates(true)}/>
                             Enter Custom Coordinates
                         </label>
                     </div>
                     {useCustomCoordinates ? (
                         <div>
                             <label>X:</label>
-                            <input type="number" value={customX} onChange={(e) => setCustomX(e.target.value)} required />
+                            <input type="number" value={customX} onChange={(e) => setCustomX(e.target.value)} required/>
                             <label>Y:</label>
-                            <input type="number" value={customY} onChange={(e) => setCustomY(e.target.value)} required />
+                            <input type="number" value={customY} onChange={(e) => setCustomY(e.target.value)} required/>
                         </div>
                     ) : (
-                        <select value={coordinates ? coordinates.id : ''} onChange={(e) => setCoordinates(availableCoordinates.find(coord => coord.id === parseInt(e.target.value)))}>
+                        <select value={coordinates ? coordinates.id : ''}
+                                onChange={(e) => setCoordinates(availableCoordinates.find(coord => coord.id === parseInt(e.target.value)))}>
                             <option value="">Select Coordinates</option>
                             {availableCoordinates.map(coord => (
                                 <option key={coord.id} value={coord.id}>
@@ -180,21 +188,25 @@ const CityForm = () => {
                     <label>Governor:</label>
                     <div>
                         <label>
-                            <input type="radio" checked={!useCustomGovernor} onChange={() => setUseCustomGovernor(false)} />
+                            <input type="radio" checked={!useCustomGovernor}
+                                   onChange={() => setUseCustomGovernor(false)}/>
                             Select Governor
                         </label>
                         <label>
-                            <input type="radio" checked={useCustomGovernor} onChange={() => setUseCustomGovernor(true)} />
+                            <input type="radio" checked={useCustomGovernor}
+                                   onChange={() => setUseCustomGovernor(true)}/>
                             Enter Custom Governor
                         </label>
                     </div>
                     {useCustomGovernor ? (
                         <div>
                             <label>Height:</label>
-                            <input type="number" value={customHeight} onChange={(e) => setCustomHeight(e.target.value)} required />
+                            <input type="number" value={customHeight} onChange={(e) => setCustomHeight(e.target.value)}
+                                   required/>
                         </div>
                     ) : (
-                        <select value={governor ? governor.id : ''} onChange={(e) => setGovernor(availableGovernors.find(gov => gov.id === parseInt(e.target.value)))}>
+                        <select value={governor ? governor.id : ''}
+                                onChange={(e) => setGovernor(availableGovernors.find(gov => gov.id === parseInt(e.target.value)))}>
                             <option value="">Select Governor</option>
                             {availableGovernors.map(gov => (
                                 <option key={gov.id} value={gov.id}>
@@ -208,6 +220,11 @@ const CityForm = () => {
                 <button type="submit">Create City</button>
                 <button type="button" onClick={() => navigate('/city-actions')}>Back to Actions</button>
             </form>
+            {error && (
+                <div style={{ color: 'red', padding: '10px', border: '1px solid red', borderRadius: '5px' }}>
+                    {error}
+                </div>
+            )}
         </div>
     );
 };

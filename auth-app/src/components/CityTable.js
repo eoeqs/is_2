@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from "../AuthProvider";
 import CityEditDialog from "./CityEditDialog";
-import useWebSocket from "../webSocket";
 
 const CityTable = () => {
     const { token, userId, isAdmin } = useAuth();
@@ -49,13 +48,6 @@ const CityTable = () => {
         }
     };
 
-    useWebSocket('wss://localhost:8080/city-updates', (data) => {
-        if (data.type === 'CITY_UPDATED') {
-            handleCityUpdate(data.payload);
-        } else if (data.type === 'CITY_DELETED') {
-            setCities(prevCities => prevCities.filter(city => city.id !== data.payload.id));
-        }
-    });
 
     return (
         <div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../AuthProvider";
@@ -6,36 +6,43 @@ import {useAuth} from "../AuthProvider";
 const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error] = useState('');
     const navigate = useNavigate();
-    const { setToken } = useAuth();
+    const {setToken} = useAuth();
+    const [error, setError] = useState('');
 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         try {
             const user = {
                 username: username,
                 password: password
             };
             console.log(user)
-            const response = await axios.post('http://localhost:8080/api/users/register', user);const { token } = response.data;
+            const response = await axios.post('http://localhost:8080/api/users/register', user);
+            const {token} = response.data;
 
             if (token) {
                 setToken(token);
 
                 navigate('/city-actions');
             } else {
+                setError('Registration failed. Please try again.');
                 console.error('No token received');
             }
         } catch (error) {
-            console.error('Registration error:', error.response ? error.response.data : error);
+            if (error.response) {
+                setError(error.response.data.message || 'Registration error. Please try again.');
+            } else {
+                setError('Network error. Please try again later.');
+            }
         }
     };
     return (
         <div>
             <h1>Register</h1>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && <p style={{color: 'red'}}>{error}</p>}
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Username:</label>
@@ -57,6 +64,7 @@ const Register = () => {
                 </div>
                 <button type="submit">Register</button>
             </form>
+
         </div>
     );
 };

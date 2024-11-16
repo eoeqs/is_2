@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {useNavigate, useParams} from 'react-router-dom';
-import { useAuth } from '../AuthProvider';
+import {useAuth} from '../AuthProvider';
 
 const CityUpdate = () => {
-    const { id } = useParams();
-    const { token, userId } = useAuth();
+    const {id} = useParams();
+    const {token, userId} = useAuth();
     const [cityData, setCityData] = useState(null);
     const [updatedCityData, setUpdatedCityData] = useState(null);
     const [climateOptions] = useState(["RAIN_FOREST", "MONSOON", "HUMIDCONTINENTAL"]);
@@ -14,7 +14,7 @@ const CityUpdate = () => {
         const fetchCityData = async () => {
             try {
                 const response = await axios.get(`/cities/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: {Authorization: `Bearer ${token}`}
                 });
                 console.log(response.data)
                 console.log(response)
@@ -55,12 +55,12 @@ const CityUpdate = () => {
             ...updatedCityData,
             updatedBy: userId,
             updatedDate: new Date().toISOString(),
-            user: { id: userId },
+            user: {id: userId},
         };
 
         try {
             await axios.put(`/cities/${id}`, cityToUpdate, {
-                headers: { Authorization: `Bearer ${token}` }
+                headers: {Authorization: `Bearer ${token}`}
             });
             navigate('/city-actions');
             console.log('City updated successfully');

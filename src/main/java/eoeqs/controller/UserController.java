@@ -4,6 +4,10 @@ import eoeqs.dto.AuthenticationSucceedDto;
 import eoeqs.dto.LoginUserDto;
 import eoeqs.dto.RegisterUserDto;
 import eoeqs.dto.UserInfoDto;
+import eoeqs.exception.BadRequestException;
+import eoeqs.exception.InternalServerErrorException;
+import eoeqs.exception.UnauthorizedAccessException;
+import eoeqs.exception.ValidationException;
 import eoeqs.jwt.JwtService;
 import eoeqs.model.Role;
 import eoeqs.model.RoleChangeRequest;
@@ -43,19 +47,18 @@ public class UserController {
 
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
             String username = userDetails.getUsername();
             return userService.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                    .orElseThrow(() -> new BadRequestException("User not found"));
         }
-        throw new UsernameNotFoundException("User not authenticated");
+        throw new UnauthorizedAccessException("User not authenticated");
     }
     @PostMapping("/register")
     public ResponseEntity<?> createUser(@RequestBody RegisterUserDto user) {
 
         if (user.password() == null || user.password().isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            throw new ValidationException("Password cannot be blank");
         }
 
         try {
@@ -64,21 +67,23 @@ public class UserController {
             AuthenticationSucceedDto succeedDto = new AuthenticationSucceedDto(jwtToken, jwtService.getExpirationTime());
             return ResponseEntity.ok(succeedDto);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            logger.error("Error during user registration: {}", e.getMessage());
+            throw new InternalServerErrorException("Registration failed");
         }
     }
 
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationSucceedDto> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
-
-        String jwtToken = jwtService.generateToken(authenticatedUser);
-
-        AuthenticationSucceedDto authenticationSucceedDto = new AuthenticationSucceedDto(jwtToken, jwtService.getExpirationTime());
-
-        return ResponseEntity.ok(authenticationSucceedDto);
+        try {
+            User authenticatedUser = authenticationService.authenticate(loginUserDto);
+            String jwtToken = jwtService.generateToken(authenticatedUser);
+            AuthenticationSucceedDto authenticationSucceedDto = new AuthenticationSucceedDto(jwtToken, jwtService.getExpirationTime());
+            return ResponseEntity.ok(authenticationSucceedDto);
+        } catch (Exception e) {
+            logger.error("Authentication failed: {}", e.getMessage());
+            throw new UnauthorizedAccessException("Authentication failed");
+        }
     }
 
     @GetMapping("/{id}")
@@ -121,7 +126,7 @@ public class UserController {
             userService.requestRoleChange(id, requestedRole);
             return ResponseEntity.ok("Role change request submitted successfully");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error submitting role change request");
+            throw new InternalServerErrorException("Something went wrong during requesting a new role.");
         }
     }
 
@@ -143,7 +148,7 @@ public class UserController {
             userService.approveRoleChange(id);
             return ResponseEntity.ok("Role change request approved");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error approving role change request");
+            throw new InternalServerErrorException("Something went wrong during approving request.");
         }
     }
 
@@ -157,7 +162,7 @@ public class UserController {
             userService.rejectRoleChange(id);
             return ResponseEntity.ok("Role change request rejected");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error rejecting role change request");
+            throw new InternalServerErrorException("Something went wrong during rejecting request.");
         }
     }
 

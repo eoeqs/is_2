@@ -50,11 +50,56 @@ const CityForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        if (!name.trim()) {
+            setError('Name cannot be empty.');
+            return;
+        }
+        if (!coordinates && !useCustomCoordinates) {
+            setError('Coordinates cannot be null.');
+            return;
+        }
+        if (useCustomCoordinates && (customX === '' || customY === '')) {
+            setError('Custom coordinates must have valid X and Y values.');
+            return;
+        }
+        if (area <= 0) {
+            setError('Area must be greater than 0.');
+            return;
+        }
+        if (population === '' || population <= 0) {
+            setError('Population must be greater than 0.');
+            return;
+        }
+        if (capital === null) {
+            setError('Capital cannot be null.');
+            return;
+        }
+        if (carCode !== '' && (carCode <= 0 || carCode > 1000)) {
+            setError('Car Code must be between 1 and 1000 or left blank.');
+            return;
+        }
+        if (agglomeration <= 0) {
+            setError('Agglomeration must be greater than 0.');
+            return;
+        }
+        if (!climate) {
+            setError('Climate cannot be null.');
+            return;
+        }
+        if (!governor && !useCustomGovernor) {
+            setError('Governor cannot be null.');
+            return;
+        }
+        if (useCustomGovernor && (customHeight === '' || customHeight <= 0)) {
+            setError('Custom governor height must be greater than 0.');
+            return;
+        }
         if (population <= 0 || area <= 0 || !name.trim()) {
             setError('Please ensure all fields are filled correctly.');
             return;
         }
+        setError('');
+
 
         try {
             let coordinatesId = coordinates ? coordinates.id : null;

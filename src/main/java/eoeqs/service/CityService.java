@@ -52,9 +52,11 @@ public class CityService {
                     if (city.getName() != null) existingCity.setName(city.getName());
                     if (city.getCoordinates() != null) existingCity.setCoordinates(city.getCoordinates());
                     if (city.getArea() > 0) existingCity.setArea(city.getArea());
-                    if (city.getPopulation() != null && city.getPopulation() > 0) existingCity.setPopulation(city.getPopulation());
+                    if (city.getPopulation() != null && city.getPopulation() > 0)
+                        existingCity.setPopulation(city.getPopulation());
                     if (city.getCapital() != null) existingCity.setCapital(city.getCapital());
-                    if (city.getMetersAboveSeaLevel() > 0) existingCity.setMetersAboveSeaLevel(city.getMetersAboveSeaLevel());
+                    if (city.getMetersAboveSeaLevel() > 0)
+                        existingCity.setMetersAboveSeaLevel(city.getMetersAboveSeaLevel());
                     if (city.getCarCode() != null) existingCity.setCarCode(city.getCarCode());
                     if (city.getAgglomeration() > 0) existingCity.setAgglomeration(city.getAgglomeration());
                     if (city.getClimate() != null) existingCity.setClimate(city.getClimate());
@@ -93,6 +95,29 @@ public class CityService {
                 .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    public void deleteCityWithReassignment(Long cityId, City reassignToCity) {
+        if (cityId.equals(reassignToCity.getId())) {
+            throw new IllegalArgumentException("The city to delete and the reassignment target cannot be the same");
+        }
+        logger.info("Reassigning dependencies from city ID: {} to city ID: {}", cityId, reassignToCity.getId());
+
+        City cityToDelete = cityRepository.findById(cityId)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+
+        List<City> cities = cityRepository.findAll();
+        for (City city : cities) {
+            if (city.getCoordinates().equals(cityToDelete.getCoordinates())) {
+                city.setCoordinates(reassignToCity.getCoordinates());
+            }
+            if (city.getGovernor().equals(cityToDelete.getGovernor())) {
+                city.setGovernor(reassignToCity.getGovernor());
+            }
+            cityRepository.save(city);
+        }
+
+        cityRepository.delete(cityToDelete);
     }
 
     public double calculateDistanceToLargestCity() {

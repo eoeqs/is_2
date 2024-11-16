@@ -26,6 +26,7 @@ public class CityController {
     private final UserRepository userRepository;
     private final CityService cityService;
 
+
     public CityController(CoordinatesRepository coordinatesRepository, HumanRepository humanRepository, UserRepository userRepository, CityService cityService) {
         this.coordinatesRepository = coordinatesRepository;
         this.humanRepository = humanRepository;
@@ -158,6 +159,26 @@ public class CityController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
         }
+    }
+
+    @DeleteMapping("/{id}/reassign")
+    public ResponseEntity<Void> deleteCityWithReassignment(
+            @PathVariable Long id,
+            @RequestParam Long reassignToCityId) {
+        User user = getAuthenticatedUser();
+        logger.info("Deleting city with ID: {} and reassigning dependencies to city with ID: {}", id, reassignToCityId);
+
+        City cityToDelete = cityService.getCityById(id)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+        City reassignToCity = cityService.getCityById(reassignToCityId)
+                .orElseThrow(() -> new RuntimeException("Target city for reassignment not found"));
+
+        if (!canModifyCity(user, cityToDelete) || !canModifyCity(user, reassignToCity)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        cityService.deleteCityWithReassignment(id, reassignToCity);
+        return ResponseEntity.noContent().build();
     }
 
     private boolean isAdmin(User user) {

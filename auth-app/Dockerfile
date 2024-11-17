@@ -3,7 +3,7 @@ FROM node:18 AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
-COPY . .
+COPY auth-app ./
 RUN npm run build
 
 # Stage 2: Serve with Nginx

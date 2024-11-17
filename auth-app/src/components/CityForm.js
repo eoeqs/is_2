@@ -25,7 +25,9 @@ const CityForm = () => {
     const [customHeight, setCustomHeight] = useState('');
     const [availableGovernors, setAvailableGovernors] = useState([]);
     const [error, setError] = useState('');
-
+    const convertCommaToDot = (value) => {
+        return value.replace(',', '.');
+    };
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -78,7 +80,7 @@ const CityForm = () => {
             setError('Car Code must be between 1 and 1000 or left blank.');
             return;
         }
-        if (agglomeration <= 0) {
+        if (agglomeration < 0) {
             setError('Agglomeration must be greater than 0.');
             return;
         }
@@ -127,13 +129,13 @@ const CityForm = () => {
                 governor: governorId ? {id: governorId} : null,
                 area: Number(area),
                 capital,
-                metersAboveSeaLevel: Number(metersAboveSeaLevel),
-                carCode: Number(carCode),
-                agglomeration: Number(agglomeration),
+                metersAboveSeaLevel: Number(metersAboveSeaLevel) || null,
+                carCode: Number(carCode) || null,
+                agglomeration: Number(agglomeration) || null,
                 climate,
                 user: {id: userId},
             };
-
+            console.log(city)
             const response = await axios.post('/cities', city, {
                 headers: {Authorization: `Bearer ${token}`},
             });
@@ -151,39 +153,69 @@ const CityForm = () => {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Name:</label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required/>
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
                 </div>
 
                 <div>
                     <label>Population:</label>
-                    <input type="number" value={population} onChange={(e) => setPopulation(e.target.value)} required/>
+                    <input
+                        type="text"
+                        value={population}
+                        onChange={(e) => setPopulation(convertCommaToDot(e.target.value))}
+                        required
+                    />
                 </div>
 
                 <div>
                     <label>Area:</label>
-                    <input type="number" value={area} onChange={(e) => setArea(e.target.value)} required/>
+                    <input
+                        type="text"
+                        value={area}
+                        onChange={(e) => setArea(convertCommaToDot(e.target.value))}
+                        required
+                    />
                 </div>
 
                 <div>
                     <label>Capital:</label>
-                    <input type="checkbox" checked={capital} onChange={() => setCapital(!capital)}/>
+                    <input
+                        type="checkbox"
+                        checked={capital}
+                        onChange={() => setCapital(!capital)}
+                    />
                 </div>
 
                 <div>
                     <label>Meters Above Sea Level:</label>
-                    <input type="number" value={metersAboveSeaLevel}
-                           onChange={(e) => setMetersAboveSeaLevel(e.target.value)}/>
+                    <input
+                        type="text"
+                        value={metersAboveSeaLevel}
+                        onChange={(e) => setMetersAboveSeaLevel(convertCommaToDot(e.target.value))}
+                    />
                 </div>
 
                 <div>
                     <label>Car Code (Optional):</label>
-                    <input type="number" value={carCode} onChange={(e) => setCarCode(e.target.value)}/>
+                    <input
+                        type="text"
+                        value={carCode}
+                        onChange={(e) => setCarCode(convertCommaToDot(e.target.value))}
+                    />
                 </div>
 
                 <div>
                     <label>Agglomeration:</label>
-                    <input type="number" value={agglomeration} onChange={(e) => setAgglomeration(e.target.value)}
-                           required/>
+                    <input
+                        type="text"
+                        value={agglomeration}
+                        onChange={(e) => setAgglomeration(convertCommaToDot(e.target.value))}
+
+                    />
                 </div>
 
                 <div>
@@ -199,28 +231,52 @@ const CityForm = () => {
                     <label>Coordinates:</label>
                     <div>
                         <label>
-                            <input type="radio" checked={!useCustomCoordinates}
-                                   onChange={() => setUseCustomCoordinates(false)}/>
+                            <input
+                                type="radio"
+                                checked={!useCustomCoordinates}
+                                onChange={() => setUseCustomCoordinates(false)}
+                            />
                             Select Coordinates
                         </label>
                         <label>
-                            <input type="radio" checked={useCustomCoordinates}
-                                   onChange={() => setUseCustomCoordinates(true)}/>
+                            <input
+                                type="radio"
+                                checked={useCustomCoordinates}
+                                onChange={() => setUseCustomCoordinates(true)}
+                            />
                             Enter Custom Coordinates
                         </label>
                     </div>
                     {useCustomCoordinates ? (
                         <div>
                             <label>X:</label>
-                            <input type="number" value={customX} onChange={(e) => setCustomX(e.target.value)} required/>
+                            <input
+                                type="text"
+                                value={customX}
+                                onChange={(e) => setCustomX(convertCommaToDot(e.target.value))}
+                                required
+                            />
                             <label>Y:</label>
-                            <input type="number" value={customY} onChange={(e) => setCustomY(e.target.value)} required/>
+                            <input
+                                type="text"
+                                value={customY}
+                                onChange={(e) => setCustomY(convertCommaToDot(e.target.value))}
+                                required
+                            />
                         </div>
                     ) : (
-                        <select value={coordinates ? coordinates.id : ''}
-                                onChange={(e) => setCoordinates(availableCoordinates.find(coord => coord.id === parseInt(e.target.value)))}>
+                        <select
+                            value={coordinates ? coordinates.id : ''}
+                            onChange={(e) =>
+                                setCoordinates(
+                                    availableCoordinates.find(
+                                        (coord) => coord.id === parseInt(e.target.value)
+                                    )
+                                )
+                            }
+                        >
                             <option value="">Select Coordinates</option>
-                            {availableCoordinates.map(coord => (
+                            {availableCoordinates.map((coord) => (
                                 <option key={coord.id} value={coord.id}>
                                     {`X: ${coord.x}, Y: ${coord.y}`}
                                 </option>
@@ -233,27 +289,45 @@ const CityForm = () => {
                     <label>Governor:</label>
                     <div>
                         <label>
-                            <input type="radio" checked={!useCustomGovernor}
-                                   onChange={() => setUseCustomGovernor(false)}/>
+                            <input
+                                type="radio"
+                                checked={!useCustomGovernor}
+                                onChange={() => setUseCustomGovernor(false)}
+                            />
                             Select Governor
                         </label>
                         <label>
-                            <input type="radio" checked={useCustomGovernor}
-                                   onChange={() => setUseCustomGovernor(true)}/>
+                            <input
+                                type="radio"
+                                checked={useCustomGovernor}
+                                onChange={() => setUseCustomGovernor(true)}
+                            />
                             Enter Custom Governor
                         </label>
                     </div>
                     {useCustomGovernor ? (
                         <div>
                             <label>Height:</label>
-                            <input type="number" value={customHeight} onChange={(e) => setCustomHeight(e.target.value)}
-                                   required/>
+                            <input
+                                type="text"
+                                value={customHeight}
+                                onChange={(e) => setCustomHeight(convertCommaToDot(e.target.value))}
+                                required
+                            />
                         </div>
                     ) : (
-                        <select value={governor ? governor.id : ''}
-                                onChange={(e) => setGovernor(availableGovernors.find(gov => gov.id === parseInt(e.target.value)))}>
+                        <select
+                            value={governor ? governor.id : ''}
+                            onChange={(e) =>
+                                setGovernor(
+                                    availableGovernors.find(
+                                        (gov) => gov.id === parseInt(e.target.value)
+                                    )
+                                )
+                            }
+                        >
                             <option value="">Select Governor</option>
-                            {availableGovernors.map(gov => (
+                            {availableGovernors.map((gov) => (
                                 <option key={gov.id} value={gov.id}>
                                     {`${gov.height} cm`}
                                 </option>
@@ -263,15 +337,16 @@ const CityForm = () => {
                 </div>
 
                 <button type="submit">Create City</button>
-                <button type="button" onClick={() => navigate('/city-actions')}>Back to Actions</button>
+                <button type="button" onClick={() => navigate('/city-actions')}>
+                    Back to Actions
+                </button>
             </form>
             {error && (
-                <div style={{ color: 'red', padding: '10px', border: '1px solid red', borderRadius: '5px' }}>
+                <div style={{color: 'red', padding: '10px', border: '1px solid red', borderRadius: '5px'}}>
                     {error}
                 </div>
             )}
-        </div>
-    );
+        </div>);
 };
 
 export default CityForm;

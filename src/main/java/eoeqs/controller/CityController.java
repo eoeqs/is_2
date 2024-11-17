@@ -8,6 +8,9 @@ import eoeqs.repository.UserRepository;
 import eoeqs.service.CityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -17,7 +20,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cities")
@@ -224,5 +229,17 @@ public class CityController {
         }
 
         return ResponseEntity.ok(cities);
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<City>> getPaginatedCities(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        logger.info("Fetching paginated cities: page {}, size {}", page, size);
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<City> paginatedCities = cityService.getPaginatedCities(pageable);
+        return ResponseEntity.ok(paginatedCities);
     }
 }

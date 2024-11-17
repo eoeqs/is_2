@@ -25,7 +25,7 @@ const Login = () => {
             await loginUser(username, password, setToken);
         } catch (err) {
             console.error('Login failed:', err);
-            setError('Login failed. Please try again.');
+            setError('Invalid username or password');
         }
     };
 

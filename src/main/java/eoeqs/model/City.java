@@ -1,7 +1,6 @@
 package eoeqs.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -52,13 +51,9 @@ public class City {
 
     private int metersAboveSeaLevel;
 
-    @Column(nullable = true)
-    @Min(1)
-    @Max(1000)
+
     private Integer carCode;
 
-    @Min(1)
-    @Column(nullable = false)
     private long agglomeration;
 
     @Enumerated(EnumType.STRING)

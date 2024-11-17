@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/studs
-    username: s367243
-    password: 10s5iDYWGyVq2DuB
+    url: jdbc:postgresql://lala:5432/lab1
+    username: eoeqs
+    password: eoeqs
     driver-class-name: org.postgresql.Driver
   jpa:
     generate-ddl: true
@@ -15,7 +15,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-logging:
-  level:
-    org:
-      springframework: trace
+#logging:
+#  level:
+#    org:
+#      springframework: trace
+#
+#

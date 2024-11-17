@@ -14,7 +14,7 @@ const CityInfo = () => {
     useEffect(() => {
         const fetchCityData = async () => {
             try {
-                const response = await axios.get(`/cities/${id}`, {
+                const response = await axios.get(`/api/cities/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setCity(response.data);

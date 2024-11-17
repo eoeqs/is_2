@@ -14,7 +14,7 @@ const CityEditDialog = ({ city, onClose, onSave }) => {
             return;
         }
         try {
-            const response = await axios.put(`/cities/${city.id}`, {
+            const response = await axios.put(`/api/cities/${city.id}`, {
                 name,
                 population: Number(population),
             }, {

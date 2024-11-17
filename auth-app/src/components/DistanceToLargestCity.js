@@ -12,7 +12,7 @@ const DistanceToLargestCity = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await axios.get('/cities/distance-to-largest-city', {
+            const response = await axios.get('/api/cities/distance-to-largest-city', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setDistance(response.data);

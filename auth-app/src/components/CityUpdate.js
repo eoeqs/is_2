@@ -13,7 +13,7 @@ const CityUpdate = () => {
     useEffect(() => {
         const fetchCityData = async () => {
             try {
-                const response = await axios.get(`/cities/${id}`, {
+                const response = await axios.get(`/api/cities/${id}`, {
                     headers: {Authorization: `Bearer ${token}`}
                 });
                 console.log(response.data)
@@ -59,7 +59,7 @@ const CityUpdate = () => {
         };
 
         try {
-            await axios.put(`/cities/${id}`, cityToUpdate, {
+            await axios.put(`/api/cities/${id}`, cityToUpdate, {
                 headers: {Authorization: `Bearer ${token}`}
             });
             navigate('/city-actions');

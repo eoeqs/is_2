@@ -9,7 +9,7 @@ const AgglomerationFilter = () => {
     useEffect(() => {
         const fetchAgglomerations = async () => {
             try {
-                const response = await axios.get('/cities', {
+                const response = await axios.get('/api/cities', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 

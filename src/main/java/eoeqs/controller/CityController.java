@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/cities")
+@RequestMapping("/api/cities")
 public class CityController {
     private final CoordinatesRepository coordinatesRepository;
     private final HumanRepository humanRepository;

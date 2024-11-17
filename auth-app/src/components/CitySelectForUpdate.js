@@ -12,7 +12,7 @@ const CitySelectForUpdate = () => {
     useEffect(() => {
         const fetchCities = async () => {
             try {
-                const response = await axios.get('/cities/editable', {
+                const response = await axios.get('/api/cities/editable', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setCities(response.data);

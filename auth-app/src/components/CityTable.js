@@ -12,7 +12,7 @@ const CityTable = () => {
     useEffect(() => {
         const fetchCities = async () => {
             try {
-                const response = await axios.get('/cities', {
+                const response = await axios.get('/api/cities', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setCities(response.data);
@@ -38,7 +38,7 @@ const CityTable = () => {
     const handleDelete = async (cityId) => {
         if (window.confirm("Are you sure you want to delete this city?")) {
             try {
-                await axios.delete(`/cities/${cityId}`, {
+                await axios.delete(`/api/cities/${cityId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setCities(cities.filter(city => city.id !== cityId));

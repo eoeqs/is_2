@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/coordinates")
+@RequestMapping("/api/coordinates")
 public class CoordinatesController {
 
     private final CoordinatesService coordinatesService;

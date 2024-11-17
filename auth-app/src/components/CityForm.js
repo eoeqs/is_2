@@ -31,10 +31,10 @@ const CityForm = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const coordinatesResponse = await axios.get('/coordinates', {
+                const coordinatesResponse = await axios.get('/api/coordinates', {
                     headers: {Authorization: `Bearer ${token}`},
                 });
-                const governorsResponse = await axios.get('/humans', {
+                const governorsResponse = await axios.get('/api/humans', {
                     headers: {Authorization: `Bearer ${token}`},
                 });
                 setAvailableCoordinates(coordinatesResponse.data);
@@ -107,7 +107,7 @@ const CityForm = () => {
             let coordinatesId = coordinates ? coordinates.id : null;
             if (useCustomCoordinates) {
                 const newCoordinates = {x: Number(customX), y: Number(customY)};
-                const coordinatesResponse = await axios.post('/coordinates', newCoordinates, {
+                const coordinatesResponse = await axios.post('/api/coordinates', newCoordinates, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
                 coordinatesId = coordinatesResponse.data.id;
@@ -116,7 +116,7 @@ const CityForm = () => {
             let governorId = governor ? governor.id : null;
             if (useCustomGovernor) {
                 const newGovernor = {height: Number(customHeight)};
-                const governorResponse = await axios.post('/humans', newGovernor, {
+                const governorResponse = await axios.post('/api/humans', newGovernor, {
                     headers: {Authorization: `Bearer ${token}`},
                 });
                 governorId = governorResponse.data.id;
@@ -131,12 +131,12 @@ const CityForm = () => {
                 capital,
                 metersAboveSeaLevel: Number(metersAboveSeaLevel) || null,
                 carCode: Number(carCode) || null,
-                agglomeration: Number(agglomeration) || null,
+                agglomeration: Number(agglomeration),
                 climate,
                 user: {id: userId},
             };
             console.log(city)
-            const response = await axios.post('/cities', city, {
+            const response = await axios.post('/api/cities', city, {
                 headers: {Authorization: `Bearer ${token}`},
             });
             console.log('City created:', response.data);
@@ -214,7 +214,7 @@ const CityForm = () => {
                         type="text"
                         value={agglomeration}
                         onChange={(e) => setAgglomeration(convertCommaToDot(e.target.value))}
-
+                        required
                     />
                 </div>
 

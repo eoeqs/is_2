@@ -10,7 +10,7 @@ const ClimateFilter = () => {
 
     const handleFilter = async () => {
         try {
-            const response = await axios.get(`/cities/filter-by-climate`, {
+            const response = await axios.get(`/api/cities/filter-by-climate`, {
                 headers: { Authorization: `Bearer ${token}` },
                 params: {
                     climate: climateThreshold,

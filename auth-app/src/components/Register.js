@@ -20,7 +20,7 @@ const Register = () => {
                 password: password
             };
             console.log(user)
-            const response = await axios.post('http://localhost:8080/api/users/register', user);
+            const response = await axios.post('/api/users/register', user);
             const {token} = response.data;
 
             if (token) {

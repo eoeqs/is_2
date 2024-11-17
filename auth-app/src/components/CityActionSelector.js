@@ -32,7 +32,7 @@ const CityActionSelector = () => {
     const fetchCities = async (page) => {
         setIsLoading(true);
         try {
-            const response = await axios.get('/cities/paginated', {
+            const response = await axios.get('/api/cities/paginated', {
                 headers: {Authorization: `Bearer ${token}`},
                 params: {
                     page,
@@ -68,31 +68,34 @@ const CityActionSelector = () => {
 
 
         const connectToWebSocket = () => {
-            const socket = new SockJS('http://localhost:8080/ws');
-            const stompClient = new Client({
-                webSocketFactory: () => socket,
-                onConnect: () => {
-                    console.log('Connected to WebSocket');
+            // const socket = new SockJS('http://localhost:8080/ws');
+            // const socket = new SockJS(`http://${window.location.host}/api/ws`);
+            const socket = new WebSocket(`ws://${window.location.host}/api/ws`);
+            socket.onopen = () => {
+                console.log('Connected to WebSocket');
+                socket.send(JSON.stringify({ action: 'subscribe', topic: '/topic/cities' }));
+            };
+            socket.onmessage = (message) => {
+                try {
+                    const update = JSON.parse(message.data);
+                    if (update) {
+                        console.log('Received update:', update);
+                        fetchCities(currentPage);
+                    } else {
+                        console.error('Received invalid update:', update);
+                    }
+                } catch (error) {
+                    console.error('Error parsing WebSocket message:', error);
+                }
+            };
 
-                    stompClient.subscribe('/topic/cities', (message) => {
-                        try {
-                            const update = JSON.parse(message.body);
-                            if (update) {
-                                console.log('Received update:', update);
-                                fetchCities(currentPage);
-                            } else {
-                                console.error('Received invalid update:', update);
-                            }
-                        } catch (error) {
-                            console.error('Error parsing WebSocket message:', error);
-                        }
-                    });
-                },
-                onStompError: (error) => {
-                    console.error('WebSocket error:', error);
-                },
-            });
-            stompClient.activate();
+            socket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            socket.onclose = () => {
+                console.log('WebSocket connection closed');
+            };
         };
         if (token) {
             fetchUserInfo();
@@ -171,7 +174,7 @@ const CityActionSelector = () => {
         setDistance(null);
 
         try {
-            const response = await axios.get('/cities/distance-to-largest-city', {
+            const response = await axios.get('/api/cities/distance-to-largest-city', {
                 headers: {Authorization: `Bearer ${token}`},
             });
             setDistance(response.data);

@@ -16,7 +16,7 @@ const CityDelete = () => {
         useEffect(() => {
             const fetchCities = async () => {
                 try {
-                    const response = await axios.get('/cities/editable', {
+                    const response = await axios.get('/api/cities/editable', {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
@@ -52,7 +52,7 @@ const CityDelete = () => {
             }
             try {
                 setIsDeleting(true);
-                await axios.delete(`/cities/${selectedCityId}/reassign`, {
+                await axios.delete(`/api/cities/${selectedCityId}/reassign`, {
                     params: {reassignToCityId: reassignCityId},
 
                     headers: {

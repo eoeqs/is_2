@@ -42,4 +42,8 @@ services:
       dockerfile: Dockerfile
 
     ports:
-      - '8686:80'
+      - '8686:443'
+    volumes:
+      - ./auth-app/alegzandra_lab_tls.crt:/etc/nginx/alegzandra_lab_tls.crt
+      - ./auth-app/alegzandra_lab_tls.key:/etc/nginx/alegzandra_lab_tls.key
+      - ./auth-app/nginx.conf:/etc/nginx/nginx.conf

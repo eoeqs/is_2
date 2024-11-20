@@ -5,8 +5,7 @@ import {useAuth} from '../AuthProvider';
 import ReactPaginate from 'react-paginate';
 import ClimateFilter from './ClimateFilter';
 import AgglomerationFilter from './AgglomerationFilter';
-import SockJS from 'sockjs-client';
-import {Client} from '@stomp/stompjs';
+
 
 
 const CityActionSelector = () => {

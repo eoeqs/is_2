@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/ws/**").permitAll()
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
                         .requestMatchers( "/api/cities/**").hasAnyAuthority("USER", "ADMIN")
+                        .requestMatchers("/api/auth/yandex").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

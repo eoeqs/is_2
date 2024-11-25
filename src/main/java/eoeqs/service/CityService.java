@@ -25,10 +25,13 @@ public class CityService {
     private final CityRepository cityRepository;
     private final HumanRepository humanRepository;
 
+
     public CityService(CityRepository cityRepository, HumanRepository humanRepository) {
         this.cityRepository = cityRepository;
         this.humanRepository = humanRepository;
     }
+
+
 
     public City createCity(City city) {
         logger.info("Creating city with data: {}", city);
@@ -38,6 +41,7 @@ public class CityService {
             logger.info("Saved Governor with ID: {}", city.getGovernor().getId());
         }
         City savedCity = cityRepository.save(city);
+
         logger.info("City created with ID: {}", savedCity.getId());
         return savedCity;
     }

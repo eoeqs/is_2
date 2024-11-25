@@ -73,6 +73,7 @@ public class CityController {
         }
         city.setUser(user);
         City createdCity = cityService.createCity(city);
+
         messagingTemplate.convertAndSend("/topic/cities", createdCity);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCity);
@@ -242,4 +243,6 @@ public class CityController {
         Page<City> paginatedCities = cityService.getPaginatedCities(pageable);
         return ResponseEntity.ok(paginatedCities);
     }
+
+
 }

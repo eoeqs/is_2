@@ -1,11 +1,17 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 import {useAuth} from "../AuthProvider";
 import {useNavigate} from "react-router-dom";
 
 const LoginPage = () => {
     const navigate = useNavigate();
 
-    const { token, setToken } = useAuth();
+    const {token, setToken} = useAuth();
+
+    useEffect(() => {
+        if (token) {
+            navigate("/city-actions");
+        }
+    }, [token, navigate]);
     useEffect(() => {
         const scriptId = "yandex-sdk";
 
@@ -18,11 +24,9 @@ const LoginPage = () => {
             script.onload = () => {
                 console.log("Яндекс SDK успешно загружен.");
             };
-
             script.onerror = () => {
                 console.error("Ошибка загрузки SDK Яндекса.");
             };
-
             document.body.appendChild(script);
         }
 
@@ -57,7 +61,7 @@ const LoginPage = () => {
                                 buttonIcon: "ya",
                             }
                         )
-                            .then(({ handler }) => handler())
+                            .then(({handler}) => handler())
                             .then((data) => {
                                 console.log("Сообщение с токеном:", data);
                                 if (data && data.access_token) {
@@ -81,7 +85,7 @@ const LoginPage = () => {
     }, [token]);
 
     return (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <div style={{textAlign: "center", marginTop: "50px"}}>
             <h1>Вход через Яндекс</h1>
             <button id="button">Авторизоваться</button>
             <div id="buttonContainer"></div>

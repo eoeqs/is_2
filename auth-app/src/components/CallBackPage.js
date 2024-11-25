@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import {useNavigate} from "react-router-dom";
-import {useAuth} from "../AuthProvider";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthProvider";
 
 const CallbackPage = () => {
-    const { token, setToken } = useAuth();
+    const { setToken } = useAuth();
     const navigate = useNavigate();
+
     useEffect(() => {
         const scriptId = "yandex-sdk-token";
 
@@ -18,17 +19,37 @@ const CallbackPage = () => {
                 console.log("Яндекс SDK Token успешно загружен.");
 
                 if (typeof window.YaSendSuggestToken === "function") {
-                    window.YaSendSuggestToken("https://localhost:8686/api/auth/yandex")
-                        .then(() => {
-                            console.log("Токен успешно отправлен на сервер.");
+                    console.log("Отправляем токен Яндекса на сервер для валидации...");
 
-                            window.close();
-                            if (window.opener) {
-                                window.opener.location.href = "/city-actions";
+                    window.YaSendSuggestToken("https://localhost:8686/api/auth/yandex")
+                        .then((response) => {
+                            console.log("Ответ от сервера получен. Статус: ", response.status);
+                            if (!response.ok) {
+                                console.error("Ошибка: Сервер отклонил токен.");
+                                throw new Error("Invalid response from server.");
+                            }
+                            return response.json();
+                        })
+                        .then((data) => {
+                            if (data.jwtToken) {
+                                console.log("JWT получен от сервера: ", data.jwtToken);
+                                setToken(data.jwtToken);
+                                console.log("JWT сохранён в контексте.");
+
+                                if (window.opener) {
+                                    console.log("Перенаправляем родительское окно на /city-actions...");
+                                    window.opener.location.href = "/city-actions";
+                                    window.close();
+                                } else {
+                                    console.log("Редирект на /city-actions...");
+                                    navigate("/city-actions");
+                                }
+                            } else {
+                                console.error("Ошибка: JWT токен отсутствует в ответе сервера.");
                             }
                         })
                         .catch((error) => {
-                            console.error("Ошибка при отправке токена:", error);
+                            console.error("Ошибка при обработке токена: ", error);
                         });
                 } else {
                     console.error("YaSendSuggestToken не определён. Проверьте SDK.");
@@ -40,25 +61,8 @@ const CallbackPage = () => {
             };
 
             document.body.appendChild(script);
-        } else {
-            console.log("Скрипт уже загружен.");
-            if (typeof window.YaSendSuggestToken === "function") {
-                window.YaSendSuggestToken("https://localhost:8686/api/auth/yandex")
-                    .then(() => {
-                        console.log("Токен успешно отправлен на сервер.");
-                        window.close();
-                        if (window.opener) {
-                            window.opener.location.href = "/city-actions";
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Ошибка при отправке токена:", error);
-                    });
-            } else {
-                console.error("YaSendSuggestToken не определён. Проверьте SDK.");
-            }
         }
-    }, []);
+    }, [setToken, navigate]);
 
     return (
         <div style={{ textAlign: "center", marginTop: "50px" }}>

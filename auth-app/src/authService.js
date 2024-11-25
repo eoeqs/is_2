@@ -12,3 +12,13 @@ export const loginUser = async (username, password, setToken) => {
         throw error;
     }
 };
+export const registerUser = async (username, password, setToken) => {
+    try {
+        const response = await axios.post('/api/users/register', { username, password }, { withCredentials: true });
+        console.log("Registration successful:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Registration error:", error);
+        throw error;
+    }
+};

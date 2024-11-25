@@ -1,16 +1,14 @@
 package eoeqs.config;
 
-import eoeqs.jwt.JwtAuthenticationFilter;
+import eoeqs.auth.AuthorizationSuccessHandlerImpl;
 import eoeqs.service.CustomAuthenticationProvider;
 import eoeqs.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,16 +28,22 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthorizationSuccessHandlerImpl authorizationSuccessHandler, eoeqs.Auth.JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/ws/**").permitAll()
-                        .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-                        .requestMatchers( "/api/cities/**").hasAnyAuthority("USER", "ADMIN")
-                        .requestMatchers("/api/auth/yandex").permitAll()
-                        .anyRequest().authenticated()
+//                        .requestMatchers("/api/ws/**").permitAll()
+//                        .requestMatchers("/api/users/register", "/api/users/login").permitAll()
+                                .requestMatchers("/login", "/login/oauth2/**", "/api/users/register").permitAll()
+//                        .requestMatchers( "/api/cities/**").hasAnyAuthority("USER", "ADMIN")
+                                .requestMatchers("/city-actions/**").authenticated()
+                                .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(authorizationSuccessHandler)
+                        .defaultSuccessUrl("/api/user")
+                        .failureUrl("/login?error=true")
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

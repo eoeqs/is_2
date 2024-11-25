@@ -5,7 +5,8 @@ import {useAuth} from '../AuthProvider';
 import ReactPaginate from 'react-paginate';
 import ClimateFilter from './ClimateFilter';
 import AgglomerationFilter from './AgglomerationFilter';
-
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 
 
 const CityActionSelector = () => {
@@ -38,7 +39,7 @@ const CityActionSelector = () => {
                     size: citiesPerPage,
                 },
             });
-
+            console.log(token, "token in city actions")
             console.log(`Fetched Cities for page ${currentPage}:`, response.data.content);
 
             setCities(response.data.content || []);
@@ -69,7 +70,7 @@ const CityActionSelector = () => {
         const connectToWebSocket = () => {
             // const socket = new SockJS('http://localhost:8080/ws');
             // const socket = new SockJS(`http://${window.location.host}/api/ws`);
-            const socket = new WebSocket(`ws://${window.location.host}/api/ws`);
+            const socket = new WebSocket(`wss://${window.location.host}/api/ws`);
             socket.onopen = () => {
                 console.log('Connected to WebSocket');
                 socket.send(JSON.stringify({ action: 'subscribe', topic: '/topic/cities' }));
@@ -255,84 +256,84 @@ const CityActionSelector = () => {
             {isLoading ? (
                 <p>Loading...</p>
             ) : cities.length > 0 ? (
-            <table>
-                <thead>
-                <tr>
-                    {[
-                        {label: 'ID', key: 'id'},
-                        {label: 'Name', key: 'name'},
-                        {label: 'Population', key: 'population'},
-                        {label: 'Area', key: 'area'},
-                        {label: 'Capital', key: 'capital'},
-                        {label: 'Climate', key: 'climate'},
-                        {label: 'Coordinates', key: 'coordinates'},
-                        {label: 'Governor (Height)', key: 'governor'},
-                        {label: 'Creation Date', key: 'creationDate'},
-                        {label: 'Establishment Date', key: 'establishmentDate'},
-                        {label: 'Meters Above Sea Level', key: 'metersAboveSeaLevel'},
-                        {label: 'Car Code', key: 'carCode'},
-                        {label: 'Agglomeration', key: 'agglomeration'},
-                    ].map((column) => (
-                        <th key={column.key}>
-                            {column.label}
-                            <button onClick={() => requestSort(column.key)}>
-                                {sortConfig.key === column.key ? (
-                                    sortConfig.direction === 'asc' ? '↑' : '↓'
-                                ) : '↕'}
-                            </button>
-                        </th>
-                    ))}
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {currentCities.map((city) => (
-                    <tr key={city.id}>
-                        <td>{city.id}</td>
-                        <td>{city.name}</td>
-                        <td>{city.population}</td>
-                        <td>{city.area}</td>
-                        <td>{city.capital ? 'Yes' : 'No'}</td>
-                        <td>{city.climate}</td>
-                        <td>{city.coordinates ? `X: ${city.coordinates.x}, Y: ${city.coordinates.y}` : 'N/A'}</td>
-                        <td>{city.governor ? city.governor.height : 'N/A'}</td>
-                        <td>{city.creationDate}</td>
-                        <td>{city.establishmentDate}</td>
-                        <td>{city.metersAboveSeaLevel}</td>
-                        <td>{city.carCode !== null ? city.carCode : 'N/A'}</td>
-                        <td>{city.agglomeration}</td>
-                        <td>
-                            {primaryRole === 'ADMIN' ? (
-                                <div>
-                                    <Link to={`/cities/update/${city.id}`}>
-                                        <button>
-                                            Edit
-                                        </button>
-                                    </Link>
-                                </div>
-                            ) : primaryRole === 'USER' ? (
-                                <div>
-                                    <Link to={`/cities/update/${city.id}`}>
-                                        <button
-                                            disabled={userId !== city.user.id}
-                                            style={{
-                                                backgroundColor: userId !== city.user.id ? '#d3d3d3' : '',
-                                                cursor: userId !== city.user.id ? 'not-allowed' : 'pointer',
-                                            }}
-                                        >
-                                            Edit
-                                        </button>
-                                    </Link>
-                                </div>
-                            ) : null}
-
-                        </td>
+                <table>
+                    <thead>
+                    <tr>
+                        {[
+                            {label: 'ID', key: 'id'},
+                            {label: 'Name', key: 'name'},
+                            {label: 'Population', key: 'population'},
+                            {label: 'Area', key: 'area'},
+                            {label: 'Capital', key: 'capital'},
+                            {label: 'Climate', key: 'climate'},
+                            {label: 'Coordinates', key: 'coordinates'},
+                            {label: 'Governor (Height)', key: 'governor'},
+                            {label: 'Creation Date', key: 'creationDate'},
+                            {label: 'Establishment Date', key: 'establishmentDate'},
+                            {label: 'Meters Above Sea Level', key: 'metersAboveSeaLevel'},
+                            {label: 'Car Code', key: 'carCode'},
+                            {label: 'Agglomeration', key: 'agglomeration'},
+                        ].map((column) => (
+                            <th key={column.key}>
+                                {column.label}
+                                <button onClick={() => requestSort(column.key)}>
+                                    {sortConfig.key === column.key ? (
+                                        sortConfig.direction === 'asc' ? '↑' : '↓'
+                                    ) : '↕'}
+                                </button>
+                            </th>
+                        ))}
+                        <th>Actions</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {currentCities.map((city) => (
+                        <tr key={city.id}>
+                            <td>{city.id}</td>
+                            <td>{city.name}</td>
+                            <td>{city.population}</td>
+                            <td>{city.area}</td>
+                            <td>{city.capital ? 'Yes' : 'No'}</td>
+                            <td>{city.climate}</td>
+                            <td>{city.coordinates ? `X: ${city.coordinates.x}, Y: ${city.coordinates.y}` : 'N/A'}</td>
+                            <td>{city.governor ? city.governor.height : 'N/A'}</td>
+                            <td>{city.creationDate}</td>
+                            <td>{city.establishmentDate}</td>
+                            <td>{city.metersAboveSeaLevel}</td>
+                            <td>{city.carCode !== null ? city.carCode : 'N/A'}</td>
+                            <td>{city.agglomeration}</td>
+                            <td>
+                                {primaryRole === 'ADMIN' ? (
+                                    <div>
+                                        <Link to={`/cities/update/${city.id}`}>
+                                            <button>
+                                                Edit
+                                            </button>
+                                        </Link>
+                                    </div>
+                                ) : primaryRole === 'USER' ? (
+                                    <div>
+                                        <Link to={`/cities/update/${city.id}`}>
+                                            <button
+                                                disabled={userId !== city.user.id}
+                                                style={{
+                                                    backgroundColor: userId !== city.user.id ? '#d3d3d3' : '',
+                                                    cursor: userId !== city.user.id ? 'not-allowed' : 'pointer',
+                                                }}
+                                            >
+                                                Edit
+                                            </button>
+                                        </Link>
+                                    </div>
+                                ) : null}
+
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
             ) : (
-                <p>No cities available.</p> // Если массив пуст
+                <p>No cities available.</p>
             )}
 
             <ReactPaginate

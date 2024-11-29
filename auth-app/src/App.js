@@ -37,8 +37,8 @@ const App = () => {
                 {/*<Route path="/" element={<Home/>}/>*/}
                 {/*<Route path="/login" element={<Login/>}/>*/}
                 <Route path="/register" element={<Register/>}/>
-                <Route path="/city-actions" element={
-                    <CityActionSelector/> }/>
+                <Route path="/city-actions" element={<ProtectedRoute>
+                    <CityActionSelector/> </ProtectedRoute> }/>
                 <Route path="/cities/create" element={<ProtectedRoute>
                     <CityForm/></ProtectedRoute>}/>
                 <Route path="/cities/update/:id" element={<ProtectedRoute>

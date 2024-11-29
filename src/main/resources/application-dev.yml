@@ -1,0 +1,42 @@
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lab1
+    username: eoeqs
+    password: eoeqs
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          yandex:
+            client-name: yandex
+            provider: yandex
+            client-id: 22ab263505f3407382296692d3f31087
+            client-secret: 7e05ff83dbd449f09cac6d8217b42012
+            authorization-grant-type: authorization_code
+            redirect-uri: "https://localhost:8686/auth/callback"
+            scope:
+              - login:email
+              - login:avatar
+
+        provider:
+          yandex:
+            authorization-uri: https://oauth.yandex.ru/authorize
+            token-uri: https://oauth.yandex.ru/token
+            user-info-uri: https://login.yandex.ru/info
+            user-name-attribute: id
+
+logging:
+  level:
+    org:
+      springframework: trace

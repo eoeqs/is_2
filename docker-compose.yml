@@ -4,7 +4,7 @@ services:
   dev-pg:
     container_name: dbpg
     hostname: lala
-    image: bitnami/postgresql:17.0.0
+    image: bitnami/postgresql:17.2.0
     environment:
       POSTGRESQL_DATABASE: lab1
       POSTGRESQL_USERNAME: eoeqs
@@ -35,8 +35,8 @@ services:
 
   frontend:
     container_name: front_app
-    depends_on:
-      - backend
+#    depends_on:
+#      - backend
     build:
       context: auth-app
       dockerfile: Dockerfile

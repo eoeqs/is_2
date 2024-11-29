@@ -1,11 +1,7 @@
+
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../AuthProvider";
 
 const CallbackPage = () => {
-    const { setToken } = useAuth();
-    const navigate = useNavigate();
-
     useEffect(() => {
         const scriptId = "yandex-sdk-token";
 
@@ -16,40 +12,19 @@ const CallbackPage = () => {
             script.async = true;
 
             script.onload = () => {
-                console.log("Яндекс SDK Token успешно загружен.");
+                console.log("Яндекс SDK  успешно загружен.");
 
                 if (typeof window.YaSendSuggestToken === "function") {
                     console.log("Отправляем токен Яндекса на сервер для валидации...");
 
-                    window.YaSendSuggestToken("https://localhost:8686/api/auth/yandex")
+                    window.YaSendSuggestToken("https://localhost:8686/api/auth/yandex", {
+                        token: true,
+                    })
                         .then((response) => {
-                            console.log("Ответ от сервера получен. Статус: ", response.status);
-                            if (!response.ok) {
-                                console.error("Ошибка: Сервер отклонил токен.");
-                                throw new Error("Invalid response from server.");
-                            }
-                            return response.json();
-                        })
-                        .then((data) => {
-                            if (data.jwtToken) {
-                                console.log("JWT получен от сервера: ", data.jwtToken);
-                                setToken(data.jwtToken);
-                                console.log("JWT сохранён в контексте.");
-
-                                if (window.opener) {
-                                    console.log("Перенаправляем родительское окно на /city-actions...");
-                                    window.opener.location.href = "/city-actions";
-                                    window.close();
-                                } else {
-                                    console.log("Редирект на /city-actions...");
-                                    navigate("/city-actions");
-                                }
-                            } else {
-                                console.error("Ошибка: JWT токен отсутствует в ответе сервера.");
-                            }
+                            console.log("Ответ от сервера: ", response);
                         })
                         .catch((error) => {
-                            console.error("Ошибка при обработке токена: ", error);
+                            console.error("Ошибка при отправке токена: ", error);
                         });
                 } else {
                     console.error("YaSendSuggestToken не определён. Проверьте SDK.");
@@ -61,13 +36,32 @@ const CallbackPage = () => {
             };
 
             document.body.appendChild(script);
+        } else {
+            console.log("Скрипт уже загружен.");
         }
-    }, [setToken, navigate]);
+    }, []);
 
     return (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
-            <h1>Обработка авторизации...</h1>
-        </div>
+        <html lang="ru">
+        <head>
+            <meta charSet="utf-8" />
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, shrink-to-fit=no, viewport-fit=cover"
+            />
+            <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
+            <style>
+                {`
+                        html, body {
+                            background: #eee;
+                        }
+                    `}
+            </style>
+        </head>
+        <body>
+        <h1>Обработка токена...</h1>
+        </body>
+        </html>
     );
 };
 

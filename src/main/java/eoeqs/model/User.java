@@ -1,9 +1,7 @@
 package eoeqs.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,24 +17,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column(name = "yandex_id", unique = true, nullable = true)
-    private String yandexId; // ID пользователя, полученный из токена Яндекса
+    private String yandexId;
 
-    @Column(name = "profile_image_url", nullable = true)
-    private String profileImageUrl; // URL изображения профиля
-
-    @Column(nullable = false)
-    private String username; // Имя пользователя
 
     @Column(nullable = false, unique = true)
-    private String email; // Email пользователя
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -47,11 +38,9 @@ public class User implements UserDetails {
     @Column(name = "role")
     private Set<Role> roles = new HashSet<>();
 
-    public User(String profileImageUrl, String username, String email, Role role) {
-        this.profileImageUrl = profileImageUrl;
+    public User(String username, String password) {
         this.username = username;
-        this.email = email;
-        this.roles = Set.of(role);
+        this.password = password;
     }
 
     public Optional<Role> getPrimaryRole() {
@@ -64,8 +53,6 @@ public class User implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toSet());
     }
-
-
 
     @Override
     public boolean isAccountNonExpired() {

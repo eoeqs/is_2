@@ -1,51 +1,17 @@
-import React, { useEffect } from "react";
-import { useAuth } from "../AuthProvider";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, {useEffect} from "react";
+import {useAuth} from "../AuthProvider";
+import {useNavigate} from "react-router-dom";
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const { token, setToken } = useAuth();
+
+    const {token, setToken} = useAuth();
 
     useEffect(() => {
         if (token) {
-            console.log("Отправка токена на сервер...", token);
-
-            axios
-                .get("https://login.yandex.ru/info", {
-                    headers: {
-                        Authorization: `OAuth ${token}`,
-                    },
-                    params: {
-                        format: "jwt",
-                    },
-                })
-                .then((userInfoResponse) => {
-                    console.log("Полученные данные от Яндекса в формате JWT:", userInfoResponse.data);
-
-                    setToken(userInfoResponse.data);
-                    console.log("JWT токен сохранен в контексте.");
-
-                    axios
-                        .post('/api/auth/yandex', { token: userInfoResponse.data }, {
-                            headers: {
-                                Authorization: `Bearer ${userInfoResponse.data}`,
-                            },
-                        })
-                        .then((response) => {
-                            console.log("Ответ от API:", response.data);
-                            navigate("/city-actions");
-                        })
-                        .catch((error) => {
-                            console.error("Ошибка при отправке JWT на сервер:", error);
-                        });
-                })
-                .catch((error) => {
-                    console.error("Ошибка при получении данных пользователя от Яндекса:", error);
-                });
+            navigate("/city-actions");
         }
-    }, [token, navigate, setToken]);
-
+    }, [token, navigate]);
     useEffect(() => {
         const scriptId = "yandex-sdk";
 
@@ -90,12 +56,12 @@ const LoginPage = () => {
                                 buttonIcon: "ya",
                             }
                         )
-                            .then(({ handler }) => handler())
+                            .then(({handler}) => handler())
                             .then((data) => {
                                 console.log("Сообщение с токеном:", data);
                                 if (data && data.access_token) {
                                     setToken(data.access_token);
-                                    console.log("Token saved");
+                                    console.log("token sohranen");
                                 }
                             })
                             .catch((error) => console.log("Обработка ошибки:", error));
@@ -110,7 +76,7 @@ const LoginPage = () => {
     }, [setToken]);
 
     return (
-        <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <div style={{textAlign: "center", marginTop: "50px"}}>
             <h1>Вход через Яндекс</h1>
             <button id="button">Авторизоваться</button>
             <div id="buttonContainer"></div>

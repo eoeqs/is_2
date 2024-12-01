@@ -13,7 +13,6 @@ const CityForm = () => {
     const [carCode, setCarCode] = useState('');
     const [agglomeration, setAgglomeration] = useState('');
     const [climate, setClimate] = useState('RAIN_FOREST');
-
     const [useCustomCoordinates, setUseCustomCoordinates] = useState(false);
     const [coordinates, setCoordinates] = useState(null);
     const [customX, setCustomX] = useState('');

@@ -17,7 +17,7 @@ const CallbackPage = () => {
                 if (typeof window.YaSendSuggestToken === "function") {
                     console.log("Отправляем токен Яндекса на сервер для валидации...");
 
-                    window.YaSendSuggestToken("https://localhost:8686/api/auth/yandex", {
+                    window.YaSendSuggestToken("https://localhost:8686/api/auth/secure", {
                         token: true,
                     })
                         .then((response) => {

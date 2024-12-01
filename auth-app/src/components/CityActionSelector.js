@@ -58,7 +58,10 @@ const CityActionSelector = () => {
             try {
                 const response = await axios.get(`/api/users/current-user-info`, {
                     headers: {Authorization: `Bearer ${token}`},
+
                 });
+
+                console.log(response)
                 setUserId(response.data.id);
                 setPrimaryRole(response.data.role);
             } catch (error) {

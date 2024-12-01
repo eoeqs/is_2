@@ -67,14 +67,14 @@ public class City {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private OAuthUser user;
 
     @Column(nullable = true)
     private LocalDate updatedDate;
 
     @ManyToOne
     @JoinColumn(name = "updated_by")
-    private User updatedBy;
+    private OAuthUser updatedBy;
 
     @PreUpdate
     public void preUpdate() {

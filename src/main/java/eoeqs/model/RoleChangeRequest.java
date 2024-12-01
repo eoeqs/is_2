@@ -14,11 +14,11 @@ public class RoleChangeRequest {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private OAuthUser oAuthUser;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "requested_role")
-    private Role requestedRole;
+    private Roles requestedRole;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

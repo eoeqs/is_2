@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom';
-import Home from './components/Home';
-import Login from './components/Login';
+
 import Register from './components/Register';
 import CityForm from './components/CityForm';
 import CityActionSelector from './components/CityActionSelector';
@@ -34,8 +33,7 @@ const App = () => {
         <Router>
             <Routes>
                 <Route path="/" element={<LoginPage/>}/>
-                {/*<Route path="/" element={<Home/>}/>*/}
-                {/*<Route path="/login" element={<Login/>}/>*/}
+
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/city-actions" element={<ProtectedRoute>
                     <CityActionSelector/> </ProtectedRoute> }/>

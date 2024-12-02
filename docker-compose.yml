@@ -35,8 +35,8 @@ services:
 
   frontend:
     container_name: front_app
-#    depends_on:
-#      - backend
+    depends_on:
+      - backend
     build:
       context: auth-app
       dockerfile: Dockerfile

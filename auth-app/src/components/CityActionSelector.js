@@ -191,13 +191,13 @@ const CityActionSelector = () => {
     return (
         <div>
             <h2>What would you like to do?</h2>
-            {primaryRole === 'ADMIN' ? (
+            {primaryRole === 'ROLE_ADMIN' ? (
                 <div>
                     <Link to="/role-requests">
                         <button>Go to Role Requests</button>
                     </Link>
                 </div>
-            ) : primaryRole === 'USER' ? (
+            ) : primaryRole === 'ROLE_USER' ? (
                 <div>
                     <Link to="/request-role-change">
                         <button>Request Role Change</button>
@@ -306,7 +306,7 @@ const CityActionSelector = () => {
                             <td>{city.carCode !== null ? city.carCode : 'N/A'}</td>
                             <td>{city.agglomeration}</td>
                             <td>
-                                {primaryRole === 'ADMIN' ? (
+                                {primaryRole === 'ROLE_ADMIN' ? (
                                     <div>
                                         <Link to={`/cities/update/${city.id}`}>
                                             <button>
@@ -314,7 +314,7 @@ const CityActionSelector = () => {
                                             </button>
                                         </Link>
                                     </div>
-                                ) : primaryRole === 'USER' ? (
+                                ) : primaryRole === 'ROLE_USER' ? (
                                     <div>
                                         <Link to={`/cities/update/${city.id}`}>
                                             <button

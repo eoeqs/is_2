@@ -25,28 +25,22 @@ import org.springframework.web.client.RestClient;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-//    private final UserDetailsServiceImpl userDetailsService;
-//
-//    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
-//        this.userDetailsService = userDetailsService;
-//    }
+
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(authz -> authz
-//                        .requestMatchers("/api/ws/**").permitAll()
-//                        .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-//                                .requestMatchers("/api/auth/**").permitAll()
-//                        .requestMatchers( "/api/cities/**").hasAnyAuthority("USER", "ADMIN")
-//                                .requestMatchers("/city-actions/**").authenticated()
-//                                .anyRequest().authenticated()
-//                )
+
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/api/ws/**").permitAll()
+                        .requestMatchers( "/api/cities/**").hasAnyRole("USER", "ADMIN")
+                                .anyRequest().authenticated()
+                )
                 .exceptionHandling(ehc -> ehc.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .authorizeHttpRequests(ahrc -> ahrc.anyRequest().authenticated())
+//                .authorizeHttpRequests(ahrc -> ahrc.anyRequest().authenticated())
                 .oauth2ResourceServer(rsc -> rsc.opaqueToken(Customizer.withDefaults()));
 
 

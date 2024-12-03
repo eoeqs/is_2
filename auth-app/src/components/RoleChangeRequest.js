@@ -36,7 +36,7 @@ const RoleChangeRequest = () => {
         try {
             setIsRequesting(true);
             await axios.post(`/api/users/${userId}/role-request`, {
-                role: 'ADMIN',
+                role: 'ROLE_ADMIN',
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ const RoleChangeRequest = () => {
             <h2>Request Role Change</h2>
             <p>Current Role: {currentRole}</p>
             {message && <p>{message}</p>}
-            {currentRole !== 'ADMIN' ? (
+            {currentRole !== 'ROLE_ADMIN' ? (
                 <button onClick={handleRequestRoleChange} disabled={isRequesting}>
                     {isRequesting ? 'Requesting...' : 'Request Admin Role'}
                 </button>

@@ -6,7 +6,7 @@ import ReactPaginate from 'react-paginate';
 import ClimateFilter from './ClimateFilter';
 import AgglomerationFilter from './AgglomerationFilter';
 import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
+import {Client} from '@stomp/stompjs';
 
 
 const CityActionSelector = () => {
@@ -71,34 +71,27 @@ const CityActionSelector = () => {
 
 
         const connectToWebSocket = () => {
-            // const socket = new SockJS('http://localhost:8080/ws');
-            // const socket = new SockJS(`http://${window.location.host}/api/ws`);
             const socket = new WebSocket(`wss://${window.location.host}/api/ws`);
-            socket.onopen = () => {
-                console.log('Connected to WebSocket');
-                socket.send(JSON.stringify({ action: 'subscribe', topic: '/topic/cities' }));
-            };
-            socket.onmessage = (message) => {
-                try {
-                    const update = JSON.parse(message.data);
-                    if (update) {
-                        console.log('Received update:', update);
-                        fetchCities(currentPage);
-                    } else {
-                        console.error('Received invalid update:', update);
-                    }
-                } catch (error) {
-                    console.error('Error parsing WebSocket message:', error);
-                }
-            };
-
-            socket.onerror = (error) => {
-                console.error('WebSocket error:', error);
-            };
-
-            socket.onclose = () => {
-                console.log('WebSocket connection closed');
-            };
+            const stompClient = new Client({
+                webSocketFactory: () => socket,
+                debug: (str) => {
+                    console.log(str);
+                },
+                onConnect: () => {
+                    console.log('Connected to WebSocket with STOMP');
+                    stompClient.subscribe('/topic/cities', (message) => {
+                        const update = JSON.parse(message.body);
+                        if (update) {
+                            console.log('Received update:', update);
+                            fetchCities(currentPage);
+                        }
+                    });
+                },
+                onStompError: (error) => {
+                    console.error('STOMP Error:', error);
+                },
+            });
+            stompClient.activate();
         };
         if (token) {
             fetchUserInfo();

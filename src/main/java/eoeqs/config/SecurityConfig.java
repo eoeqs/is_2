@@ -40,7 +40,6 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(ehc -> ehc.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-//                .authorizeHttpRequests(ahrc -> ahrc.anyRequest().authenticated())
                 .oauth2ResourceServer(rsc -> rsc.opaqueToken(Customizer.withDefaults()));
 
 

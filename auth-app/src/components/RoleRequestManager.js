@@ -18,6 +18,7 @@ const RoleRequestManager = () => {
                     },
                 });
                 setRoleRequests(response.data);
+                console.log(response.data)
             } catch (error) {
                 console.error('Error fetching role requests:', error);
             }
@@ -77,8 +78,8 @@ const RoleRequestManager = () => {
                     <tbody>
                     {roleRequests.map((request) => (
                         <tr key={request.id}>
-                            <td>{request.user.id}</td>
-                            <td>{request.user.username}</td>
+                            <td>{request.oauthUser.id}</td>
+                            <td>{request.oauthUser.username}</td>
                             <td>{request.requestedRole}</td>
                             <td>
                                 <button onClick={() => handleApproveRequest(request.id)}>

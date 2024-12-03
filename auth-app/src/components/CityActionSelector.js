@@ -344,7 +344,11 @@ const CityActionSelector = () => {
                 previousClassName="previous-item"
                 nextClassName="next-item"
             />
-
+            <div>
+                <Link to="/city-history">
+                    <button>Show Change History</button>
+                </Link>
+            </div>
             <div>
                 <button onClick={handleLogout}>Logout</button>
             </div>

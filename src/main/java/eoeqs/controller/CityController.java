@@ -6,6 +6,7 @@ import eoeqs.repository.CoordinatesRepository;
 import eoeqs.repository.HumanRepository;
 import eoeqs.repository.OAuthUserRepository;
 import eoeqs.service.CityService;
+import eoeqs.dto.CityHistoryDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -263,5 +264,15 @@ public class CityController {
         return ResponseEntity.ok(paginatedCities);
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<List<CityHistoryDto>> getCityHistory(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedAccessException("User not authenticated");
+        }
 
+        logger.info("Fetching city history for user: {}", authentication.getName());
+
+        List<CityHistoryDto> cityHistory = cityService.getCityHistory();
+        return ResponseEntity.ok(cityHistory);
+    }
 }

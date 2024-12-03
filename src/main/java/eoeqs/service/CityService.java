@@ -1,5 +1,6 @@
 package eoeqs.service;
 
+import eoeqs.dto.CityHistoryDto;
 import eoeqs.model.City;
 import eoeqs.model.Climate;
 import eoeqs.model.Coordinates;
@@ -11,10 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -149,5 +147,27 @@ public class CityService {
 
     public Page<City> getPaginatedCities(Pageable pageable) {
         return cityRepository.findAll(pageable);
+    }
+
+    public List<CityHistoryDto> getCityHistory() {
+        List<City> cities = cityRepository.findAll();
+
+        List<CityHistoryDto> historyList = new ArrayList<>();
+        for (City city : cities) {
+            CityHistoryDto history = new CityHistoryDto();
+
+            history.setCityId(city.getId());
+            history.setCityName(city.getName());
+
+            history.setCreatedBy(city.getUser() != null ? city.getUser().getUsername() : "N/A");
+            history.setCreatedDate(city.getCreationDate() != null ? city.getCreationDate().toString() : "N/A");
+
+            history.setUpdatedBy(city.getUpdatedBy() != null ? city.getUpdatedBy().getUsername() : "N/A");
+            history.setUpdatedDate(city.getUpdatedDate() != null ? city.getUpdatedDate().toString() : "N/A");
+
+            historyList.add(history);
+        }
+
+        return historyList;
     }
 }

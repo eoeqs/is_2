@@ -13,6 +13,7 @@ import RoleRequestManager from "./components/RoleRequestManager";
 import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "./components/LoginPage";
 import CallbackPage from "./components/CallBackPage";
+import CityHistory from "./components/CityHistory";
 
 const App = () => {
     const [user, setUser] = useState({roles: []});
@@ -33,7 +34,8 @@ const App = () => {
         <Router>
             <Routes>
                 <Route path="/" element={<LoginPage/>}/>
-
+                <Route path="/city-history" element={<ProtectedRoute>
+                    <CityHistory/> </ProtectedRoute> } />
                 <Route path="/register" element={<Register/>}/>
                 <Route path="/city-actions" element={<ProtectedRoute>
                     <CityActionSelector/> </ProtectedRoute> }/>

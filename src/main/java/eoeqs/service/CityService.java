@@ -149,6 +149,7 @@ public class CityService {
         return cityRepository.findAll(pageable);
     }
 
+
     public List<CityHistoryDto> getCityHistory() {
         List<City> cities = cityRepository.findAll();
 

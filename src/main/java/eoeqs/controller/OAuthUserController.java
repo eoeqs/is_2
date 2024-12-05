@@ -41,7 +41,7 @@ public class OAuthUserController {
         }
 
         String username = authentication.getName();
-        OAuthUser oAuthUser = oAuthUserRepository.findByUsername(username)
+        OAuthUser oAuthUser = oAuthUserRepository.findByUsernameWithRoles(username)
                 .orElseThrow(() -> new UnauthorizedAccessException("User not found in the database"));
 
         String role = authentication.getAuthorities().stream()

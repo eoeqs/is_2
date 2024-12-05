@@ -19,7 +19,7 @@ public class OAuthUser {
 
     private String provider;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(name = "oauthuser_roles",
             joinColumns = @JoinColumn(name = "oauthuser_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -60,6 +60,10 @@ public class OAuthUser {
     public Set<Role> getRoles() {
         return roles;
     }
+
+//    OAuthUser user = oauthUserRepository.findByUsernameWithRoles("username_here");
+//    Set<Role> roles = user.getRoles();
+
 
     @Override
     public final boolean equals(Object o) {

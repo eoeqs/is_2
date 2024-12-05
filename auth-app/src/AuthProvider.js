@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState, useEffect} from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
@@ -6,41 +6,22 @@ export const useAuth = () => {
     return useContext(AuthContext);
 };
 
-export const AuthProvider = ({children}) => {
-    const [token, setToken] = useState(null);
+export const AuthProvider = ({ children }) => {
+    const [token, setToken] = useState(() => {
+        const storedToken = localStorage.getItem('token');
+        return storedToken ? storedToken : null;
+    });
 
     const handleSetToken = (newToken) => {
         console.log("Setting token in AuthProvider:", newToken);
         setToken(newToken);
+        localStorage.setItem('token', newToken);
     };
 
-    const logout = async () => {
-        console.log("Starting logout process...");
-
-        // if (token) {
-        //     try {
-        //         console.log("Sending token to backend for revocation...");
-        //
-        //         const response = await axios.post(
-        //             '/api/auth/logout',
-        //             { access_token: token },
-        //             {
-        //                 headers: {
-        //                     Authorization: `Bearer ${token}`,
-        //                     'Content-Type': 'application/json',
-        //                 },
-        //             }
-        //         );
-        //
-        //         console.log('Token revoked on backend:', response.data);
-        //
-        //     } catch (error) {
-        //         console.error('Error revoking token on backend:', error);
-        //     }
-        // }
-
+    const logout = () => {
+        console.log("Logging out...");
         setToken(null);
-        console.log("Token cleared:", token);
+        localStorage.removeItem('token');
     };
 
     const initializeYandexSDK = () => {
@@ -80,17 +61,16 @@ export const AuthProvider = ({children}) => {
                     buttonIcon: "ya",
                 }
             )
-                .then(({handler}) => handler())
+                .then(({ handler }) => handler())
                 .then((data) => {
-                    console.log("Сообщение с токеном:", data);
+                    console.log("Received token:", data);
                     if (data && data.access_token) {
-                        setToken(data.access_token);
-                        console.log("token сохранен");
+                        handleSetToken(data.access_token);
                     }
                 })
-                .catch((error) => console.log("Обработка ошибки:", error));
+                .catch((error) => console.log("Error handling Yandex login:", error));
         } else {
-            console.error("YaAuthSuggest недоступен. Проверьте, загружен ли SDK.");
+            console.error("YaAuthSuggest is not available. Check if SDK is loaded.");
         }
     };
 

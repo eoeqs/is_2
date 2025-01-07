@@ -7,5 +7,5 @@ RUN gradle build --no-daemon -x test
 #RUn
 FROM openjdk:17
 WORKDIR /application
-COPY --from=backend-build /sources-build/build/libs/is_1-1.0.jar app.jar
+COPY --from=backend-build /sources-build/build/libs/is_2-1.0.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -61,8 +61,6 @@ public class OAuthUser {
         return roles;
     }
 
-//    OAuthUser user = oauthUserRepository.findByUsernameWithRoles("username_here");
-//    Set<Role> roles = user.getRoles();
 
 
     @Override

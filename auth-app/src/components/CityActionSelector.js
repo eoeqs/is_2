@@ -28,6 +28,10 @@ const CityActionSelector = () => {
     const [loadingDistance, setLoadingDistance] = useState(false);
     const [totalPages, setTotalPages] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [importFile, setImportFile] = useState(null);
+    const [importError, setImportError] = useState(null);
+    const [errorMessage, setErrorMessage] = useState('');
+
 
     const fetchCities = async (page) => {
         setIsLoading(true);
@@ -154,15 +158,9 @@ const CityActionSelector = () => {
         setSortConfig({key, direction});
     };
 
-    const handleAgglomerationFilterChange = (selectedAgglomeration) => {
-        setSelectedAgglomeration(selectedAgglomeration);
-    };
     const handleLogout = () => {
         logout();
         navigate('/');
-    };
-    const toggleUniqueAgglomerations = () => {
-        setShowUniqueAgglomerations(!showUniqueAgglomerations);
     };
 
     const handleFindDistance = async () => {
@@ -178,6 +176,40 @@ const CityActionSelector = () => {
             console.error('Error fetching distance:', error);
         } finally {
             setLoadingDistance(false);
+        }
+    };
+    const handleFileChange = (e) => {
+        setImportFile(e.target.files[0]);
+    };
+
+
+    const handleImport = async () => {
+        setErrorMessage(''); // Сбрасываем предыдущее сообщение об ошибке
+
+        if (!importFile) {
+            setErrorMessage('Please select a file to import.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', importFile);
+
+        try {
+            const response = await axios.post('/api/cities/import', formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                setErrorMessage('');
+                alert('File imported successfully!');
+                fetchCities(currentPage);
+            }
+        } catch (error) {
+            console.error('Error importing file:', error);
+            setErrorMessage('Failed to import file. Please try again.');
         }
     };
 
@@ -348,6 +380,27 @@ const CityActionSelector = () => {
                 <Link to="/city-history">
                     <button>Show Change History</button>
                 </Link>
+            </div>
+            <div>
+                <Link to="/import-history">
+                    <button>View Import History</button>
+                </Link>
+
+            </div>
+            <div>
+                <h2>Import Cities</h2>
+                <div>
+                    <label htmlFor="file-input">Upload File:</label>
+                    <input
+                        id="file-input"
+                        type="file"
+                        onChange={(e) => setImportFile(e.target.files[0])}
+                        accept=".yaml,.yml"
+                    />
+                    <button onClick={handleImport}>Import</button>
+                </div>
+
+                {errorMessage && <p style={{color: 'red'}}>{errorMessage}</p>}
             </div>
             <div>
                 <button onClick={handleLogout}>Logout</button>

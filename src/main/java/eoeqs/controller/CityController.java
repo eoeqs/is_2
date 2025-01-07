@@ -4,6 +4,7 @@ import eoeqs.exception.*;
 import eoeqs.model.*;
 import eoeqs.repository.CoordinatesRepository;
 import eoeqs.repository.HumanRepository;
+import eoeqs.repository.ImportHistoryRepository;
 import eoeqs.repository.OAuthUserRepository;
 import eoeqs.service.CityService;
 import eoeqs.dto.CityHistoryDto;
@@ -17,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -31,14 +34,16 @@ public class CityController {
     private final OAuthUserRepository oAuthUserRepository;
     private final CityService cityService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final ImportHistoryRepository importHistoryRepository;
 
 
-    public CityController(CoordinatesRepository coordinatesRepository, HumanRepository humanRepository, OAuthUserRepository oAuthUserRepository, CityService cityService, SimpMessagingTemplate messagingTemplate) {
+    public CityController(CoordinatesRepository coordinatesRepository, HumanRepository humanRepository, OAuthUserRepository oAuthUserRepository, CityService cityService, SimpMessagingTemplate messagingTemplate, ImportHistoryRepository importHistoryRepository) {
         this.coordinatesRepository = coordinatesRepository;
         this.humanRepository = humanRepository;
         this.oAuthUserRepository = oAuthUserRepository;
         this.cityService = cityService;
         this.messagingTemplate = messagingTemplate;
+        this.importHistoryRepository = importHistoryRepository;
     }
 
 
@@ -50,13 +55,15 @@ public class CityController {
         logger.info("Creating city for user: {}", authentication.getName());
 
 
-        Coordinates coordinates = coordinatesRepository.findById(city.getCoordinates().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Coordinates not found"));
-        city.setCoordinates(coordinates);
+        if (city.getCoordinates() != null && city.getCoordinates().getId() == null) {
+            logger.info("Saving new coordinates: {}", city.getCoordinates());
+            city.setCoordinates(coordinatesRepository.save(city.getCoordinates()));
+        }
 
-        Human human = humanRepository.findById(city.getGovernor().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Governor not found"));
-        city.setGovernor(human);
+        if (city.getGovernor() != null && city.getGovernor().getId() == null) {
+            logger.info("Saving new governor: {}", city.getGovernor());
+            city.setGovernor(humanRepository.save(city.getGovernor()));
+        }
         String username = authentication.getName();
         OAuthUser oAuthUser = oAuthUserRepository.findByUsername(username)
                 .orElseThrow(() -> new UnauthorizedAccessException("User is not authorized"));
@@ -220,19 +227,9 @@ public class CityController {
         return ResponseEntity.noContent().build();
     }
 
-    private boolean isAdmin(OAuthUser oAuthUser) {
-
-        return oAuthUser.getRoles().stream()
-                .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
-    }
-
-
-    private boolean canModifyCity(OAuthUser user, City city) {
-        return isAdmin(user) || city.getUser().getId().equals(user.getId());
-    }
 
     @GetMapping("/editable")
-    public ResponseEntity<List<City>> getAllEditableCities( Authentication authentication) {
+    public ResponseEntity<List<City>> getAllEditableCities(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new UnauthorizedAccessException("User not authenticated");
         }
@@ -274,5 +271,59 @@ public class CityController {
 
         List<CityHistoryDto> cityHistory = cityService.getCityHistory();
         return ResponseEntity.ok(cityHistory);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<String> importCities(@RequestParam("file") MultipartFile file, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedAccessException("User not authenticated");
+        }
+
+        String username = authentication.getName();
+        OAuthUser oAuthUser = oAuthUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not authorized"));
+
+        try {
+            cityService.importCities(file, oAuthUser);
+            return ResponseEntity.ok("Cities imported successfully");
+        } catch (InvalidFileFormatException e) {
+            return ResponseEntity.badRequest().body("Invalid file format: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error occurred during import: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/import-history")
+    public ResponseEntity<List<ImportHistory>> getImportHistory(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedAccessException("User not authenticated");
+        }
+
+        String username = authentication.getName();
+        OAuthUser oAuthUser = oAuthUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not authorized"));
+
+        List<ImportHistory> history;
+        if (isAdmin(oAuthUser)) {
+            logger.info("Admin {} is fetching all import history", username);
+            history = importHistoryRepository.findAll();
+        } else {
+            logger.info("User {} is fetching their import history", username);
+            history = importHistoryRepository.findByUser(oAuthUser);
+        }
+
+        return ResponseEntity.ok(history);
+    }
+
+    private boolean isAdmin(OAuthUser oAuthUser) {
+
+        return oAuthUser.getRoles().stream()
+                .anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
+    }
+
+
+    private boolean canModifyCity(OAuthUser user, City city) {
+        return isAdmin(user) || city.getUser().getId().equals(user.getId());
     }
 }

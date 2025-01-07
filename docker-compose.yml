@@ -1,8 +1,8 @@
 volumes:
   dev-db-volume: {}
 services:
-  dev-pg:
-    container_name: dbpg
+  dev-pg1:
+    container_name: dbpg1
     hostname: lala
     image: bitnami/postgresql:17.2.0
     environment:
@@ -19,13 +19,13 @@ services:
       timeout: 5s
       retries: 3
 
-  backend:
+  backend1:
 
-    container_name: back_app
+    container_name: back_app1
     hostname: bbb
     depends_on:
-      dev-pg:
-         condition: service_healthy
+      dev-pg1:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
@@ -33,10 +33,10 @@ services:
     ports:
       - '8080:8080'
 
-  frontend:
-    container_name: front_app
+  frontend1:
+    container_name: front_app1
     depends_on:
-      - backend
+      - backend1
     build:
       context: auth-app
       dockerfile: Dockerfile

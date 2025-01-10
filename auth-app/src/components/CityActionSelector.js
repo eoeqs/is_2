@@ -31,7 +31,7 @@ const CityActionSelector = () => {
     const [importFile, setImportFile] = useState(null);
     const [importError, setImportError] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
-
+    const [isImporting, setIsImporting] = useState(false);
 
     const fetchCities = async (page) => {
         setIsLoading(true);
@@ -184,10 +184,11 @@ const CityActionSelector = () => {
 
 
     const handleImport = async () => {
-        setErrorMessage(''); // Сбрасываем предыдущее сообщение об ошибке
-
+        setErrorMessage('');
+        setIsImporting(true);
         if (!importFile) {
             setErrorMessage('Please select a file to import.');
+            setIsImporting(false);
             return;
         }
 
@@ -204,12 +205,13 @@ const CityActionSelector = () => {
 
             if (response.status === 200) {
                 setErrorMessage('');
-                alert('File imported successfully!');
                 fetchCities(currentPage);
             }
         } catch (error) {
             console.error('Error importing file:', error);
             setErrorMessage('Failed to import file. Please try again.');
+        } finally {
+            setIsImporting(false);
         }
     };
 
@@ -397,7 +399,9 @@ const CityActionSelector = () => {
                         onChange={(e) => setImportFile(e.target.files[0])}
                         accept=".yaml,.yml"
                     />
-                    <button onClick={handleImport}>Import</button>
+                    <button onClick={handleImport} disabled={isImporting}>
+                        {isImporting ? 'Importing...' : 'Import Cities'}
+                    </button>
                 </div>
 
                 {errorMessage && <p style={{color: 'red'}}>{errorMessage}</p>}

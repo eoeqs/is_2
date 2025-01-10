@@ -288,6 +288,8 @@ public class CityController {
             return ResponseEntity.ok("Cities imported successfully");
         } catch (InvalidFileFormatException e) {
             return ResponseEntity.badRequest().body("Invalid file format: " + e.getMessage());
+        } catch (InvalidDataException e) {
+            return ResponseEntity.badRequest().body("Invalid data: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error occurred during import: " + e.getMessage());
